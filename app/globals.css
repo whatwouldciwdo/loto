@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 13% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 13%;
+    --primary: 84 100% 70%;
+    /* #B9FF66 */
+    --primary-foreground: 220 13% 13%;
+    --secondary: 0 0% 95%;
+    /* #F3F3F3 */
+    --secondary-foreground: 220 13% 13%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 84 100% 70%;
+    --accent-foreground: 220 13% 13%;
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 84 100% 70%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 220 13% 13%;
+    /* #191A23 */
+    --foreground: 0 0% 100%;
+    --card: 220 13% 13%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 13% 13%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 84 100% 70%;
+    --primary-foreground: 220 13% 13%;
+    --secondary: 220 13% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 13% 20%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 84 100% 70%;
+    --accent-foreground: 220 13% 13%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 84 100% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Toast Animation */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

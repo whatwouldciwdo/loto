@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: loto_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: loto_db
+      POSTGRES_USER: loto_user
+      POSTGRES_PASSWORD: loto_password_change_in_production
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - loto_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loto_user -d loto_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: loto_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis_password_change_in_production
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - loto_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO for file storage (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: loto_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_password_change_in_production
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    networks:
+      - loto_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Next.js Full-Stack Application (akan diisi setelah init)
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: loto_web
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: development
+  #     # Database
+  #     DATABASE_URL: postgresql://loto_user:loto_password_change_in_production@postgres:5432/loto_db
+  #     # Redis
+  #     REDIS_URL: redis://:redis_password_change_in_production@redis:6379
+  #     # MinIO
+  #     MINIO_ENDPOINT: minio
+  #     MINIO_PORT: 9000
+  #     MINIO_ACCESS_KEY: minio_admin
+  #     MINIO_SECRET_KEY: minio_password_change_in_production
+  #     MINIO_USE_SSL: false
+  #     # JWT
+  #     JWT_SECRET: your_jwt_secret_change_in_production
+  #     # App
+  #     NEXT_PUBLIC_API_URL: http://localhost:3000
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     minio:
+  #       condition: service_healthy
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   networks:
+  #     - loto_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  loto_network:
+    driver: bridge

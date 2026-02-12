@@ -1,0 +1,209 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  PEMELIHARAAN
+  OPERATOR
+}
+
+enum LotoType {
+  TAGGING
+  RELEASE
+}
+
+enum LotoStatus {
+  REQUEST
+  DRAFT
+  ACTIVE
+  CLOSE
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole
+  department   String?
+  isActive     Boolean  @default(true) @map("is_active")
+  ldapEnabled  Boolean  @default(false) @map("ldap_enabled")
+
+  // Relations
+  createdLotos  LotoRequest[]    @relation("CreatedBy")
+  operatedLotos LotoRequest[]    @relation("Operator")
+  approvals     LotoApproval[]
+  historyLogs   LotoHistory[]
+  attachments   LotoAttachment[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Asset {
+  id              String   @id @default(uuid())
+  
+  // Equipment information
+  assetNumber     String   @unique @map("asset_number")
+  equipmentName   String   @map("equipment_name")
+  equipmentType   String?  @map("equipment_type")
+  location        String?
+  kodeAlas        String?  @map("kode_alas") // Location code
+  unit            String   // CLG, etc.
+  systemOwner     String?  @map("system_owner") // System owner info
+  
+  // Additional metadata
+  description     String?  @db.Text
+  manufacturer    String?
+  model           String?
+  serialNumber    String?  @map("serial_number")
+  
+  // Status
+  isActive        Boolean  @default(true) @map("is_active")
+  
+  // Relations
+  lotoRequests    LotoRequest[]
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  @@index([unit])
+  @@index([equipmentName])
+  @@map("assets")
+}
+
+model LotoRequest {
+  id            String     @id @default(uuid())
+  requestNumber String     @unique @map("request_number")
+  type          LotoType
+  status        LotoStatus @default(DRAFT)
+
+  // Relations
+  createdById String @map("created_by_id")
+  createdBy   User   @relation("CreatedBy", fields: [createdById], references: [id])
+
+  operatorId String? @map("operator_id")
+  operator   User?   @relation("Operator", fields: [operatorId], references: [id])
+
+  assetId String? @map("asset_id")
+  asset   Asset?  @relation(fields: [assetId], references: [id])
+
+  // Form data as JSON (flexible structure)
+  formData Json @map("form_data")
+
+  // Related records
+  approvals   LotoApproval[]
+  history     LotoHistory[]
+  attachments LotoAttachment[]
+  taggingCard TaggingCard?
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@map("loto_requests")
+}
+
+model LotoApproval {
+  id String @id @default(uuid())
+
+  lotoRequestId String      @map("loto_request_id")
+  lotoRequest   LotoRequest @relation(fields: [lotoRequestId], references: [id], onDelete: Cascade)
+
+  approverId String @map("approver_id")
+  approver   User   @relation(fields: [approverId], references: [id])
+
+  step         String         @db.VarChar(50) // 'HAR_APPROVAL', 'OP_APPROVAL', 'FINAL_APPROVAL', 'RELEASE'
+  approverRole UserRole       @map("approver_role")
+  status       ApprovalStatus @default(PENDING)
+  notes        String?        @db.Text
+
+  approvedAt DateTime? @map("approved_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@map("loto_approvals")
+}
+
+model LotoHistory {
+  id String @id @default(uuid())
+
+  lotoRequestId String      @map("loto_request_id")
+  lotoRequest   LotoRequest @relation(fields: [lotoRequestId], references: [id], onDelete: Cascade)
+
+  actorId String @map("actor_id")
+  actor   User   @relation(fields: [actorId], references: [id])
+
+  action    String      @db.VarChar(100) // 'created', 'approved', 'rejected', 'released', etc.
+  oldStatus LotoStatus? @map("old_status")
+  newStatus LotoStatus? @map("new_status")
+  metadata  Json? // Additional context
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("loto_history")
+}
+
+model LotoAttachment {
+  id String @id @default(uuid())
+
+  lotoRequestId String      @map("loto_request_id")
+  lotoRequest   LotoRequest @relation(fields: [lotoRequestId], references: [id], onDelete: Cascade)
+
+  uploadedById String @map("uploaded_by_id")
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  fileName       String @map("file_name")
+  filePath       String @map("file_path") @db.VarChar(500)
+  fileType       String @map("file_type")
+  fileSize       Int    @map("file_size")
+  attachmentType String @map("attachment_type") // 'tagging_photo', 'release_photo', 'document'
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("loto_attachments")
+}
+
+model TaggingCard {
+  id String @id @default(uuid())
+
+  lotoRequestId String      @unique @map("loto_request_id")
+  lotoRequest   LotoRequest @relation(fields: [lotoRequestId], references: [id], onDelete: Cascade)
+
+  cardNumber        String @unique @map("card_number")
+  equipmentName     String @map("equipment_name")
+  equipmentLocation String @map("equipment_location")
+  equipmentInfo     Json   @map("equipment_info")
+
+  printedAt DateTime? @map("printed_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("tagging_cards")
+}

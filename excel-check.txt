@@ -1,0 +1,39 @@
+﻿=== EXCEL STRUCTURE ===
+
+Worksheet: List of Assets 2026
+Rows: 1012
+
+COLUMN HEADERS:
+Column 1: Site
+Column 2: Asset
+Column 3: Description
+Column 4: Kode Alias
+Column 5: Description Kode Alias
+Column 6: Last Wellness
+Column 7: System Owner
+Column 8: Kondisi Saat ini
+Column 9: Location
+Column 10: Parent
+Column 11: Last WO
+Column 12: Jenis Pembangkit
+Column 13: Unit
+Column 14: Area SERP
+Column 15: Periode
+
+
+FIRST DATA ROW (Row 2):
+Column 1: CLG
+Column 2: CG00BAT
+Column 3: UNIVERSAL┬áTRANSFORMER┬á(EQ.)
+Column 4: CG00BAT10-001
+Column 5: UNIVERSAL┬áTRANSFORMER┬á
+Column 6: HIJAU
+Column 7: 7393239K3
+Column 8: Kondisi┬áperalatan┬ánormal┬á(Update┬ákondisi┬ástatus┬áyang┬ásama┬álebih┬ádari┬ásetahun)
+Column 9: CG
+Column 10: CG00B
+Column 11: 202525053
+Column 12: TG
+Column 13: CG10
+Column 14: CG10
+Column 15: 2025
