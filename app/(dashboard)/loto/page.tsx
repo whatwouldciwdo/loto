@@ -109,17 +109,17 @@ export default function LotoListPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-dark to-gray-800 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">
-                        <ClipboardList className="w-7 h-7 text-neon" />
+                    <div className="bg-gradient-to-br from-dark to-gray-800 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+                        <ClipboardList className="w-5 h-5 md:w-7 md:h-7 text-neon" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-dark">LOTO Requests</h1>
-                        <p className="text-gray-600">All lockout/tagout requests</p>
+                        <h1 className="text-xl md:text-3xl font-bold text-dark">LOTO Requests</h1>
+                        <p className="text-sm text-gray-600">All lockout/tagout requests</p>
                     </div>
                 </div>
-                <Button variant="neon" onClick={() => router.push('/loto/request')}>
+                <Button variant="neon" onClick={() => router.push('/loto/request')} className="w-full sm:w-auto">
                     <Plus className="w-4 h-4 mr-2" />
                     New Request
                 </Button>
@@ -142,7 +142,7 @@ export default function LotoListPage() {
             </Card>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
@@ -198,76 +198,107 @@ export default function LotoListPage() {
                             No LOTO requests found
                         </p>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b bg-gray-100">
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Request #</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Equipment</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Keterangan</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Created By</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Date</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredLotos.map((loto) => (
-                                        <tr key={loto.id} className="border-b hover:bg-gray-50">
-                                            <td className="py-3 px-4">
-                                                <Link
-                                                    href={`/loto/${loto.id}`}
-                                                    className="text-dark font-semibold hover:underline"
-                                                >
-                                                    {loto.requestNumber}
-                                                </Link>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <p className="font-medium">{loto.formData.operatorForm?.equipmentName || loto.formData.equipmentName || 'N/A'}</p>
-                                                <p className="text-xs text-gray-500">{loto.formData.operatorForm?.unit || loto.formData.unit || 'CLG'}</p>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm text-gray-700 max-w-md">
-                                                    {loto.formData.operatorForm?.keterangan || loto.formData.description || '-'}
-                                                </p>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <Badge className={statusColors[loto.status]}>
-                                                    {loto.status.replace(/_/g, ' ')}
-                                                </Badge>
-                                            </td>
-                                            <td className="py-3 px-4 text-sm">
-                                                {loto.createdBy.name}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-600">
-                                                {new Date(loto.createdAt).toLocaleDateString('id-ID')}
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => router.push(`/loto/${loto.id}`)}
+                        <>
+                            {/* Desktop Table */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b bg-gray-100">
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Request #</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Equipment</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Keterangan</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Created By</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Date</th>
+                                            <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredLotos.map((loto) => (
+                                            <tr key={loto.id} className="border-b hover:bg-gray-50">
+                                                <td className="py-3 px-4">
+                                                    <Link
+                                                        href={`/loto/${loto.id}`}
+                                                        className="text-dark font-semibold hover:underline"
                                                     >
-                                                        View
-                                                    </Button>
-                                                    {canDelete && (
+                                                        {loto.requestNumber}
+                                                    </Link>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <p className="font-medium">{loto.formData.operatorForm?.equipmentName || loto.formData.equipmentName || 'N/A'}</p>
+                                                    <p className="text-xs text-gray-500">{loto.formData.operatorForm?.unit || loto.formData.unit || 'CLG'}</p>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <p className="text-sm text-gray-700 max-w-md">
+                                                        {loto.formData.operatorForm?.keterangan || loto.formData.description || '-'}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <Badge className={statusColors[loto.status]}>
+                                                        {loto.status.replace(/_/g, ' ')}
+                                                    </Badge>
+                                                </td>
+                                                <td className="py-3 px-4 text-sm">
+                                                    {loto.createdBy.name}
+                                                </td>
+                                                <td className="py-3 px-4 text-sm text-gray-600">
+                                                    {new Date(loto.createdAt).toLocaleDateString('id-ID')}
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <div className="flex gap-2">
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => handleDelete(loto.id, loto.requestNumber)}
-                                                            className="text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                                            onClick={() => router.push(`/loto/${loto.id}`)}
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            View
                                                         </Button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                        {canDelete && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => handleDelete(loto.id, loto.requestNumber)}
+                                                                className="text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Card List */}
+                            <div className="md:hidden space-y-3">
+                                {filteredLotos.map((loto) => (
+                                    <div
+                                        key={loto.id}
+                                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                                        onClick={() => router.push(`/loto/${loto.id}`)}
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="font-semibold text-dark text-sm">{loto.requestNumber}</p>
+                                            <Badge className={statusColors[loto.status] + ' text-xs'}>
+                                                {loto.status.replace(/_/g, ' ')}
+                                            </Badge>
+                                        </div>
+                                        <p className="text-sm font-medium text-gray-800 mb-1">
+                                            {loto.formData.operatorForm?.equipmentName || loto.formData.equipmentName || 'N/A'}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mb-2 line-clamp-1">
+                                            {loto.formData.operatorForm?.keterangan || loto.formData.description || '-'}
+                                        </p>
+                                        <div className="flex items-center justify-between text-xs text-gray-400">
+                                            <span>{loto.createdBy.name}</span>
+                                            <span>{new Date(loto.createdAt).toLocaleDateString('id-ID')}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </CardContent>
             </Card>

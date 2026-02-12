@@ -27,23 +27,23 @@ export default async function DashboardPage() {
         <div className="min-h-screen bg-gray-50">
             {/* Hero Section - Compact */}
             <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border-b-2 border-neon">
-                <div className="container mx-auto px-8 py-6">
+                <div className="container mx-auto px-4 md:px-8 py-4 md:py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="bg-dark w-8 h-8 rounded-lg flex items-center justify-center">
                                 <Sparkles className="w-4 h-4 text-neon" />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-dark">
+                                <h1 className="text-xl md:text-3xl font-bold text-dark">
                                     Managing LOTO Requests
-                                    <span className="text-neon ml-2">for Workplace Safety</span>
+                                    <span className="text-neon ml-1 md:ml-2 block md:inline text-lg md:text-3xl">for Workplace Safety</span>
                                 </h1>
-                                <p className="text-sm text-gray-600 mt-1">
+                                <p className="text-xs md:text-sm text-gray-600 mt-1 hidden md:block">
                                     Manage your lockout/tagout procedures with our digital management system.
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-3">
                             <div className="text-right">
                                 <p className="text-xs text-gray-500">Logged in as</p>
                                 <p className="font-semibold text-dark">{session.username}</p>
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-8 py-12">
+            <div className="container mx-auto px-4 md:px-8 py-6 md:py-12">
                 {/* Quick Actions Section */}
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-6">
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
                         <div className="h-px flex-1 bg-gray-200"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         <Card>
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between mb-3">

@@ -89,21 +89,21 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
         <div className="container mx-auto px-4 py-8 max-w-5xl">
             {/* Header */}
             <div className="mb-6">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-dark mb-2">{loto.requestNumber}</h1>
-                        <p className="text-gray-600">
+                        <h1 className="text-xl md:text-3xl font-bold text-dark mb-2">{loto.requestNumber}</h1>
+                        <p className="text-gray-600 text-sm">
                             Created by: <span className="font-semibold">{loto.createdBy.name}</span>
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs md:text-sm text-gray-500">
                             {new Date(loto.createdAt).toLocaleString('id-ID')}
                         </p>
                     </div>
-                    <Badge className={`${statusColors[loto.status]} border-2 text-lg px-4 py-2`}>
+                    <Badge className={`${statusColors[loto.status]} border-2 text-sm md:text-lg px-3 md:px-4 py-1 md:py-2`}>
                         {loto.status.replace(/_/g, ' ')}
                     </Badge>
                 </div>
-                <Button variant="outline" onClick={() => router.push('/loto')}>
+                <Button variant="outline" size="sm" onClick={() => router.push('/loto')}>
                     ← Back to List
                 </Button>
             </div>
