@@ -64,7 +64,7 @@ export class ApprovalService {
         }
 
         // Allow from REQUEST, DRAFT or ACTIVE (for editing)
-        const allowedStatuses = [LotoStatus.REQUEST, LotoStatus.DRAFT, LotoStatus.ACTIVE]
+        const allowedStatuses: LotoStatus[] = [LotoStatus.REQUEST, LotoStatus.DRAFT, LotoStatus.ACTIVE]
         if (!allowedStatuses.includes(loto.status)) {
             throw new Error(`Cannot fill operator form from status: ${loto.status}`)
         }
@@ -78,10 +78,15 @@ export class ApprovalService {
             data: {
                 operatorId: userId,
                 status: newStatus,
+                assetId: formData.asset_id || undefined, // Link asset if provided
                 formData: {
                     ...(loto.formData as any),
                     operatorForm: formData,
                 },
+            },
+            include: {
+                createdBy: true,
+                asset: true,
             },
         })
 
@@ -138,6 +143,10 @@ export class ApprovalService {
                     releaseForm: formData,
                 },
             },
+            include: {
+                createdBy: true,
+                asset: true,
+            },
         })
 
         // Log history
@@ -173,7 +182,8 @@ export class ApprovalService {
         }
 
         // Can only cancel from REQUEST, DRAFT or ACTIVE
-        if (![LotoStatus.REQUEST, LotoStatus.DRAFT, LotoStatus.ACTIVE].includes(loto.status)) {
+        const allowedStatuses: LotoStatus[] = [LotoStatus.REQUEST, LotoStatus.DRAFT, LotoStatus.ACTIVE]
+        if (!allowedStatuses.includes(loto.status)) {
             throw new Error(`Cannot cancel from status: ${loto.status}`)
         }
 

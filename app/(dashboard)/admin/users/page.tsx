@@ -119,7 +119,6 @@ export default function AdminUsersPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-dark mb-2">User Management</h1>
@@ -130,7 +129,6 @@ export default function AdminUsersPage() {
                 </Button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <Card>
                     <CardContent className="pt-6">
@@ -164,7 +162,6 @@ export default function AdminUsersPage() {
                 </Card>
             </div>
 
-            {/* Search */}
             <Card className="mb-6">
                 <CardContent className="pt-6">
                     <Input
@@ -176,7 +173,6 @@ export default function AdminUsersPage() {
                 </CardContent>
             </Card>
 
-            {/* Users Table */}
             <Card>
                 <CardHeader>
                     <CardTitle>Users ({filteredUsers.length})</CardTitle>
@@ -211,7 +207,7 @@ export default function AdminUsersPage() {
                                             </td>
                                             <td className="py-3 px-4 text-sm">{user.department || '-'}</td>
                                             <td className="py-3 px-4">
-                                                <Badge variant={user.isActive ? 'default' : 'destructive'}>
+                                                <Badge variant={user.isActive ? 'default' : 'cancelled'}>
                                                     {user.isActive ? 'Active' : 'Inactive'}
                                                 </Badge>
                                             </td>

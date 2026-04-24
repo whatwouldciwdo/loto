@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const query = searchParams.get('q') || ''
-        const unit = searchParams.get('unit') || 'CLG'
+        const unit = searchParams.get('unit') // Optional unit filter
 
         const assets = await prisma.asset.findMany({
             where: {
-                unit,
+                ...(unit ? { unit } : {}),
                 isActive: true,
                 OR: [
                     { equipmentName: { contains: query, mode: 'insensitive' } }, // Description - priority

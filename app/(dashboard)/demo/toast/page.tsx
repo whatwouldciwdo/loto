@@ -17,7 +17,6 @@ export default function ToastDemoPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Success Toast */}
                     <Card className="border-2 border-neon">
                         <CardHeader>
                             <div className="flex items-center gap-2">
@@ -44,7 +43,6 @@ export default function ToastDemoPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Error Toast */}
                     <Card className="border-2 border-red-500">
                         <CardHeader>
                             <div className="flex items-center gap-2">
@@ -71,7 +69,6 @@ export default function ToastDemoPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Warning Toast */}
                     <Card className="border-2 border-yellow-500">
                         <CardHeader>
                             <div className="flex items-center gap-2">
@@ -96,7 +93,6 @@ export default function ToastDemoPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Info Toast */}
                     <Card className="border-2 border-blue-500">
                         <CardHeader>
                             <div className="flex items-center gap-2">
@@ -122,7 +118,6 @@ export default function ToastDemoPage() {
                     </Card>
                 </div>
 
-                {/* Usage Example */}
                 <Card className="mt-8 bg-dark text-white">
                     <CardHeader>
                         <CardTitle className="text-neon">Usage Example</CardTitle>

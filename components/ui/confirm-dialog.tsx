@@ -74,24 +74,20 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
         <ConfirmDialogContext.Provider value={{ showConfirm }}>
             {children}
 
-            {/* Confirm Dialog Overlay */}
             {open && options && (
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center"
                     style={{ animation: 'confirmFadeIn 0.2s ease-out' }}
                 >
-                    {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={handleClose}
                     />
 
-                    {/* Dialog */}
                     <div
                         className={`relative bg-dark border-2 ${borderColors[type]} rounded-2xl p-6 shadow-2xl w-full max-w-md mx-4`}
                         style={{ animation: 'confirmScaleIn 0.2s ease-out' }}
                     >
-                        {/* Close Button */}
                         <button
                             onClick={handleClose}
                             disabled={loading}
@@ -100,7 +96,6 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                             <X className="w-5 h-5" />
                         </button>
 
-                        {/* Icon + Content */}
                         <div className="flex items-start gap-4">
                             <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
                                 {icons[type]}
@@ -115,7 +110,6 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                             </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex gap-3 mt-6">
                             <Button
                                 variant="outline"
@@ -137,7 +131,6 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                 </div>
             )}
 
-            {/* Animations */}
             <style jsx global>{`
                 @keyframes confirmFadeIn {
                     from { opacity: 0; }

@@ -59,19 +59,19 @@ export default function Sidebar({ session }: SidebarProps) {
 
         return (
             <>
-                {/* Logo Section */}
                 <div className="p-4 md:p-6 border-b border-gray-700 flex items-center justify-between">
                     {!collapsed ? (
                         <Link href="/" className="flex items-center gap-3 group">
                             <Image
                                 src="/logo.png"
                                 alt="LOTO System"
-                                width={48}
-                                height={48}
+                                width={120}
+                                height={120}
                                 className="group-hover:scale-105 transition-transform"
                             />
                             <div>
-                                <h1 className="text-xl font-bold text-white">LOTO System</h1>
+                                <h1 className="text-xl font-bold text-white">EVI</h1>
+                                <p className="text-xs text-gray-400">Energy Verification & Isolation</p>
                                 <p className="text-xs text-gray-400">Lockout/Tagout</p>
                             </div>
                         </Link>
@@ -96,7 +96,6 @@ export default function Sidebar({ session }: SidebarProps) {
                     )}
                 </div>
 
-                {/* Toggle Button (desktop only) */}
                 {!mobile && (
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -111,15 +110,14 @@ export default function Sidebar({ session }: SidebarProps) {
                     </button>
                 )}
 
-                {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-2">
                     {navLinks.map(({ href, icon: Icon, label }) => (
                         <Link
                             key={href}
                             href={href}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group ${isActive(href)
-                                    ? 'bg-neon text-dark font-semibold'
-                                    : 'hover:bg-neon hover:text-dark'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(href)
+                                ? 'bg-neon text-dark font-semibold'
+                                : 'hover:bg-neon hover:text-dark hover:translate-x-1'
                                 }`}
                             title={label}
                         >
@@ -131,9 +129,9 @@ export default function Sidebar({ session }: SidebarProps) {
                     {session?.role === 'ADMIN' && (
                         <Link
                             href="/admin/users"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group ${isActive('/admin/users')
-                                    ? 'bg-neon text-dark font-semibold'
-                                    : 'hover:bg-neon hover:text-dark'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive('/admin/users')
+                                ? 'bg-neon text-dark font-semibold'
+                                : 'hover:bg-neon hover:text-dark hover:translate-x-1'
                                 }`}
                             title="User Management"
                         >
@@ -143,11 +141,10 @@ export default function Sidebar({ session }: SidebarProps) {
                     )}
                 </nav>
 
-                {/* Copyright Section */}
                 <div className="px-4 py-3">
                     {!collapsed ? (
                         <div className="text-center">
-                            <p className="text-xs text-gray-400 mb-1">© 2026 LoTo System</p>
+                            <p className="text-xs text-gray-400 mb-1">© 2026 EVI System</p>
                             <p className="text-xs text-gray-500">All rights reserved</p>
                         </div>
                     ) : (
@@ -157,7 +154,6 @@ export default function Sidebar({ session }: SidebarProps) {
                     )}
                 </div>
 
-                {/* User Section */}
                 <div className="p-4 border-t border-gray-700">
                     {!collapsed ? (
                         <>
@@ -166,7 +162,7 @@ export default function Sidebar({ session }: SidebarProps) {
                                 className="flex items-center gap-3 mb-3 p-2 -m-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer group"
                                 title="Profile & Change Password"
                             >
-                                <div className="w-10 h-10 bg-neon rounded-full flex items-center justify-center text-dark font-bold flex-shrink-0 group-hover:ring-2 group-hover:ring-neon/50 transition-all">
+                                <div className="w-10 h-10 bg-neon rounded-full flex items-center justify-center text-dark font-bold flex-shrink-0 group-hover:ring-4 group-hover:ring-neon/30 transition-all duration-300">
                                     {session?.username?.[0]?.toUpperCase() || 'U'}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -217,7 +213,6 @@ export default function Sidebar({ session }: SidebarProps) {
 
     return (
         <>
-            {/* Mobile Header Bar */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-dark text-white flex items-center justify-between px-4 py-3 shadow-lg">
                 <button
                     onClick={() => setIsMobileOpen(true)}
@@ -237,7 +232,6 @@ export default function Sidebar({ session }: SidebarProps) {
                 </Link>
             </div>
 
-            {/* Mobile Overlay */}
             {isMobileOpen && (
                 <div
                     className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
@@ -245,7 +239,6 @@ export default function Sidebar({ session }: SidebarProps) {
                 />
             )}
 
-            {/* Mobile Sidebar Drawer */}
             <aside
                 className={`md:hidden fixed top-0 left-0 bottom-0 w-72 bg-dark text-white flex flex-col z-50 transform transition-transform duration-300 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
@@ -253,7 +246,6 @@ export default function Sidebar({ session }: SidebarProps) {
                 <SidebarContent mobile={true} />
             </aside>
 
-            {/* Desktop Sidebar */}
             <aside className={`hidden md:flex ${isCollapsed ? 'w-20' : 'w-64'} bg-dark text-white flex-col transition-all duration-300`}>
                 <SidebarContent mobile={false} />
             </aside>

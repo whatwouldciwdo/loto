@@ -54,6 +54,36 @@ export async function POST(request: NextRequest) {
             formData: validatedData.formData,
         })
 
+        // Send WhatsApp Notification
+        try {
+            console.log('[LOTO API] Preparing WhatsApp notification...')
+            console.log('[LOTO API] Request Number:', lotoRequest.requestNumber)
+            console.log('[LOTO API] Seksi:', validatedData.formData.seksi)
+            console.log('[LOTO API] Description:', validatedData.formData.description)
+
+            // Get creator's phone number from database
+            const { default: prisma } = await import('@/lib/db/prisma')
+            const creator = await prisma.user.findUnique({
+                where: { id: session.userId },
+                select: { phoneNumber: true }
+            })
+
+            const { WhatsappService } = await import('@/lib/services/whatsapp.service')
+
+            console.log('[LOTO API] Calling WhatsappService.notifyNewRequest...')
+            await WhatsappService.notifyNewRequest(
+                lotoRequest.requestNumber,
+                validatedData.formData.description || '-',
+                validatedData.type,
+                validatedData.formData.seksi || '-',
+                session.username,
+                creator?.phoneNumber // Pass creator's phone number
+            )
+            console.log('[LOTO API] WhatsApp notification sent successfully')
+        } catch (err) {
+            console.error('[LOTO API] Failed to send WhatsApp notification:', err)
+        }
+
         return NextResponse.json(
             { data: lotoRequest, message: 'LOTO request created successfully' },
             { status: 201 }

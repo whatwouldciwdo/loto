@@ -15,20 +15,25 @@ import { useToast } from '@/components/ui/toast'
 
 // TBA: Will be announced later - placeholders for now
 const WORK_TYPES = [
-    'Maintenance',
-    'Repair',
-    'Inspection',
-    'Preventive Maintenance',
+    'Proactive Maintenance',
+    'Run To Failure',
+    'Supporting',
     'Corrective Maintenance',
+    'Preventive Maintenance',
+    'Predictive Maintenance',
+    'Emergency Maintenance',
+    'Overhaul',
+    'Condition Directed',
 ]
 
 const SEKSI_LIST = [
-    'Production',
-    'Electrical',
-    'Mechanical',
-    'Instrumentation',
-    'Civil',
-    'Process',
+    // Maintenance HAR (Specific teams with names)
+    'HAR-MECH (JUWAN OKTAVIANSA)',
+    'HAR-I&C (YUDI NUGRAHA)',
+    'HAR-ELEC (GUNAWAN)',
+    'HAR-BOP (RIZKY ALIF)',
+    'SARANA (IRVAN SANDI)',
+    'HAR-PREDIKTIF (PEBRIANTO GINTING)',
 ]
 
 // Generate LOTO number: LOTO-YYYYMMDD-XXXX
@@ -97,8 +102,7 @@ export default function LotoRequestPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
-            {/* Header */}
-            <div className="mb-8">
+            <div className="mb-8 animate-fade-in-down">
                 <div className="flex items-center gap-3 mb-3">
                     <div className="bg-gradient-to-br from-neon to-neon-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
                         <Shield className="w-7 h-7 text-dark" />
@@ -113,16 +117,14 @@ export default function LotoRequestPage() {
                 </p>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="max-w-5xl">
                 {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
                         <p className="text-red-600 text-sm">{error}</p>
                     </div>
                 )}
 
-                {/* Single Card with All Fields */}
-                <Card className="mb-6 border-2 border-gray-200">
+                <Card className="mb-6 border-2 border-gray-200 animate-fade-in-up">
                     <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
                         <div className="flex items-center gap-3">
                             <div className="bg-neon w-10 h-10 rounded-lg flex items-center justify-center">
@@ -132,7 +134,6 @@ export default function LotoRequestPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
-                        {/* No LOTO Field */}
                         <div>
                             <Label className="text-base font-semibold mb-2 block">
                                 No LOTO
@@ -145,7 +146,6 @@ export default function LotoRequestPage() {
                             <p className="text-xs text-gray-500 mt-1">Auto-generated LOTO number</p>
                         </div>
 
-                        {/* Workorder Number */}
                         <div>
                             <Label htmlFor="workorderNumber" className="text-base font-semibold mb-2 block">
                                 Workorder Number <span className="text-red-500">*</span>
@@ -159,7 +159,6 @@ export default function LotoRequestPage() {
                             />
                         </div>
 
-                        {/* Description */}
                         <div>
                             <Label htmlFor="description" className="text-base font-semibold mb-2 block">
                                 Description <span className="text-red-500">*</span>
@@ -174,7 +173,6 @@ export default function LotoRequestPage() {
                             />
                         </div>
 
-                        {/* Work Type Dropdown */}
                         <div>
                             <Label htmlFor="workType" className="text-base font-semibold mb-2 block">
                                 Work Type <span className="text-red-500">*</span>
@@ -198,7 +196,6 @@ export default function LotoRequestPage() {
                             <p className="text-xs text-gray-500 mt-1">Select the type of maintenance work</p>
                         </div>
 
-                        {/* Seksi Dropdown */}
                         <div>
                             <Label htmlFor="seksi" className="text-base font-semibold mb-2 block">
                                 Seksi <span className="text-red-500">*</span>
@@ -224,8 +221,7 @@ export default function LotoRequestPage() {
                     </CardContent>
                 </Card>
 
-                {/* Submit Buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 animate-fade-in-up animate-delay-200">
                     <Button
                         type="button"
                         variant="outline"

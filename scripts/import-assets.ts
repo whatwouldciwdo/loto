@@ -1,129 +1,73 @@
-import { PrismaClient } from '@prisma/client'
-import ExcelJS from 'exceljs'
-import path from 'path'
+import * as XLSX from 'xlsx';
+import * as path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+const filePath = path.join(process.cwd(), 'list Asset 2026.xlsx');
 
-async function importAssetsFromExcel() {
-    console.log('📊 Starting Asset Import from Excel...\n')
-
-    const filePath = path.join(process.cwd(), 'list Asset 2026.xlsx')
-    const workbook = new ExcelJS.Workbook()
-
+async function importAssets() {
     try {
-        await workbook.xlsx.readFile(filePath)
-        const worksheet = workbook.getWorksheet(1)
+        console.log('Reading Excel file...');
+        const workbook = XLSX.readFile(filePath);
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
 
-        if (!worksheet) {
-            throw new Error('No worksheet found in Excel file')
-        }
+        // Read as JSON
+        const rawData = XLSX.utils.sheet_to_json(sheet);
+        console.log(`Found ${rawData.length} rows.`);
 
-        console.log(`📋 Found worksheet: ${worksheet.name}`)
-        console.log(`   Rows: ${worksheet.rowCount}\n`)
+        let successCount = 0;
+        let errorCount = 0;
 
-        // Clear existing assets
-        const deleted = await prisma.asset.deleteMany()
-        console.log(`🗑️  Cleared ${deleted.count} existing assets\n`)
+        for (const row of rawData as any[]) {
+            const assetNumber = row['Asset'];
+            // Skip invalid rows
+            if (!assetNumber) continue;
 
-        const assets: any[] = []
+            const equipmentName = row['Description'] || 'Unknown';
+            const unit = row['Site'] || 'CLG'; // Default to CLG if missing
+            const location = row['Location'];
 
-        // CORRECT Column mapping based on Excel analysis:
-        // Column 1: Site (CLG)
-        // Column 2: Asset Number
-        // Column 3: Description (Equipment Name)
-        // Column 4: Kode Alias (Location Code)
-        // Column 7: System Owner
-        // Column 9: Location
+            // Map status "OPERATING" to true, others might be false/true depending on logic.
+            // Assuming "OPERATING" is active.
+            const isActive = row['Status'] === 'OPERATING';
 
-        console.log('🔍 Column mapping:')
-        console.log('   Column 1: Site')
-        console.log('   Column 2: Asset Number')
-        console.log('   Column 3: Description (Equipment Name)')
-        console.log('   Column 4: Kode Alias')
-        console.log('   Column 7: System Owner')
-        console.log('   Column 9: Location\n')
+            const assetData = {
+                assetNumber: String(assetNumber),
+                equipmentName: String(equipmentName),
+                equipmentType: row['Description Kode Alias'] || null, // Best guess mapping
+                kodeAlas: row['Kode Alias'] ? String(row['Kode Alias']) : null,
+                unit: String(unit),
+                location: location ? String(location) : null,
+                systemOwner: row['System Owner'] ? String(row['System Owner']) : null,
+                isActive: isActive,
+                // Optional fields
+                description: row['Kondisi Saat ini'] ? String(row['Kondisi Saat ini']) : null,
+            };
 
-        // Read data rows (skip header row 1)
-        let successCount = 0
-        for (let rowNum = 2; rowNum <= worksheet.rowCount; rowNum++) {
-            const row = worksheet.getRow(rowNum)
-
-            const site = row.getCell(1).value          // Column 1: Site
-            const assetNumber = row.getCell(2).value   // Column 2: Asset
-            const description = row.getCell(3).value   // Column 3: Description
-            const kodeAlas = row.getCell(4).value      // Column 4: Kode Alias
-            const systemOwner = row.getCell(7).value   // Column 7: System Owner
-            const location = row.getCell(9).value      // Column 9: Location
-
-            // Skip empty rows
-            if (!assetNumber || !description) continue
-
-            const asset = {
-                assetNumber: String(assetNumber).trim(),
-                equipmentName: String(description).trim(), // Description as main name!
-                kodeAlas: kodeAlas ? String(kodeAlas).trim() : null,
-                location: location ? String(location).trim() : null,
-                systemOwner: systemOwner ? String(systemOwner).trim() : null,
-                unit: site ? String(site).trim() : 'CLG',
-                equipmentType: null,
-                isActive: true,
+            try {
+                await prisma.asset.upsert({
+                    where: { assetNumber: assetData.assetNumber },
+                    update: assetData,
+                    create: assetData,
+                });
+                successCount++;
+                if (successCount % 50 === 0) process.stdout.write('.');
+            } catch (err) {
+                console.error(`\nFailed to import ${assetNumber}:`, err);
+                errorCount++;
             }
-
-            // Clean nulls
-            if (asset.kodeAlas === '' || asset.kodeAlas === 'null') asset.kodeAlas = null
-            if (asset.location === '' || asset.location === 'null') asset.location = null
-            if (asset.systemOwner === '' || asset.systemOwner === 'null') asset.systemOwner = null
-
-            assets.push(asset)
-            successCount++
         }
 
-        console.log(`📝 Prepared ${assets.length} assets for import\n`)
+        console.log(`\n\nImport completed!`);
+        console.log(`Success: ${successCount}`);
+        console.log(`Errors: ${errorCount}`);
 
-        // Bulk insert
-        const result = await prisma.asset.createMany({
-            data: assets,
-            skipDuplicates: true,
-        })
-
-        console.log(`✅ Imported ${result.count} assets successfully!\n`)
-
-        // Show sample with descriptions
-        const sampleAssets = await prisma.asset.findMany({
-            take: 10,
-            orderBy: { equipmentName: 'asc' },
-        })
-
-        console.log('📋 Sample imported assets:')
-        sampleAssets.forEach((asset: any, i: number) => {
-            console.log(`\n${i + 1}. ${asset.equipmentName}`)
-            console.log(`   Asset: ${asset.assetNumber}`)
-            if (asset.kodeAlas) console.log(`   Kode Alas: ${asset.kodeAlas}`)
-            if (asset.location) console.log(`   Location: ${asset.location}`)
-        })
-
-        // Test search
-        console.log('\n\n🔎 Testing search for "DIESEL"...')
-        const diesel = await prisma.asset.findMany({
-            where: {
-                equipmentName: { contains: 'DIESEL', mode: 'insensitive' },
-            },
-            take: 3,
-        })
-        console.log(`Found ${diesel.length} DIESEL assets`)
-        diesel.forEach((a: any) => console.log(`  - ${a.equipmentName}`))
-
-        console.log('\n🎉 Import completed successfully!')
     } catch (error) {
-        console.error('❌ Error importing assets:', error)
-        throw error
+        console.error('Fatal error during import:', error);
     } finally {
-        await prisma.$disconnect()
+        await prisma.$disconnect();
     }
 }
 
-importAssetsFromExcel()
-    .catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
+importAssets();

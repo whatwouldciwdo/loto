@@ -11,6 +11,10 @@ import prisma from '@/lib/db/prisma'
 export default async function DashboardPage() {
     const session = await getSession()
 
+    if (!session) {
+        redirect('/login')
+    }
+
     // Fetch LOTO statistics
     const stats = await prisma.lotoRequest.groupBy({
         by: ['status'],
@@ -25,8 +29,7 @@ export default async function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Hero Section - Compact */}
-            <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border-b-2 border-neon">
+            <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border-b-2 border-neon animate-fade-in-down">
                 <div className="container mx-auto px-4 md:px-8 py-4 md:py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -55,7 +58,6 @@ export default async function DashboardPage() {
             </div>
 
             <div className="container mx-auto px-4 md:px-8 py-6 md:py-12">
-                {/* Quick Actions Section */}
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-6">
                         <Badge variant="default" className="text-base px-4 py-2">
@@ -65,8 +67,7 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Request LOTO Card - Neon Style */}
-                        <Card className="bg-neon border-neon hover:shadow-2xl transition-all group cursor-pointer">
+                        <Card className="bg-neon border-neon hover:shadow-2xl transition-all group cursor-pointer animate-fade-in-up">
                             <CardHeader>
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="bg-dark w-12 h-12 rounded-xl flex items-center justify-center">
@@ -90,8 +91,7 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        {/* View All LOTO Card - Dark Style */}
-                        <Card className="bg-dark border-dark hover:shadow-2xl transition-all group cursor-pointer">
+                        <Card className="bg-dark border-dark hover:shadow-2xl transition-all group cursor-pointer animate-fade-in-up animate-delay-200">
                             <CardHeader>
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="bg-neon w-12 h-12 rounded-xl flex items-center justify-center">
@@ -118,7 +118,6 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Stats Section */}
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-6">
                         <Badge variant="default" className="text-base px-4 py-2">
@@ -128,7 +127,7 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                        <Card>
+                        <Card className="animate-scale-in">
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-sm text-gray-500 font-medium">Total LOTO</p>
@@ -139,7 +138,7 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-yellow-50 border-yellow-200">
+                        <Card className="bg-yellow-50 border-yellow-200 animate-scale-in animate-delay-100">
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-sm text-yellow-700 font-medium">Requested</p>
@@ -150,7 +149,7 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-neon-50 border-neon-200">
+                        <Card className="bg-neon-50 border-neon-200 animate-scale-in animate-delay-200">
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-sm text-gray-700 font-medium">Active</p>
@@ -161,7 +160,7 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-dark border-dark">
+                        <Card className="bg-dark border-dark animate-scale-in animate-delay-300">
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-sm text-neon font-medium">Completed</p>
@@ -174,7 +173,6 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Recent Activity / Services Section */}
                 <div>
                     <div className="flex items-center gap-3 mb-6">
                         <Badge variant="default" className="text-base px-4 py-2">
@@ -184,7 +182,7 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="hover:shadow-xl transition-all">
+                        <Card className="hover:shadow-xl transition-all animate-fade-in-up animate-delay-100">
                             <CardHeader>
                                 <div className="w-12 h-12 bg-neon rounded-xl flex items-center justify-center mb-3">
                                     <Lock className="w-6 h-6 text-dark" />
@@ -202,7 +200,7 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="hover:shadow-xl transition-all">
+                        <Card className="hover:shadow-xl transition-all animate-fade-in-up animate-delay-300">
                             <CardHeader>
                                 <div className="w-12 h-12 bg-dark rounded-xl flex items-center justify-center mb-3">
                                     <Unlock className="w-6 h-6 text-neon" />

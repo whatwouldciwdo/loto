@@ -51,17 +51,14 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex">
-            {/* Left Side - Features */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-dark via-dark-200 to-dark-400 p-12 flex-col justify-center relative overflow-hidden">
-                {/* Decorative background pattern */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-dark via-dark-200 to-dark-400 p-12 flex-col justify-center relative overflow-hidden animate-fade-in-left">
                 <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-20 left-20 w-64 h-64 bg-neon rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-20 right-20 w-96 h-96 bg-neon rounded-full blur-3xl"></div>
+                    <div className="absolute top-20 left-20 w-64 h-64 bg-neon rounded-full blur-3xl animate-float"></div>
+                    <div className="absolute bottom-20 right-20 w-96 h-96 bg-neon rounded-full blur-3xl animate-float animate-delay-500"></div>
                 </div>
 
                 <div className="relative z-10">
-                    {/* Logo */}
-                    <div className="mb-12">
+                    <div className="mb-12 animate-fade-in-up">
                         <Image
                             src="/logo.png"
                             alt="LOTO Safe Web App"
@@ -77,8 +74,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Features List */}
-                    <div className="space-y-6 mt-12">
+                    <div className="space-y-6 mt-12 animate-fade-in-up animate-delay-200">
                         <FeatureItem
                             icon={<LockIcon />}
                             title="Adaptive Safety"
@@ -103,11 +99,9 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            {/* Right Side - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50 animate-fade-in-right">
                 <div className="w-full max-w-md">
-                    {/* Mobile Logo */}
-                    <div className="lg:hidden flex justify-center mb-8">
+                    <div className="lg:hidden flex justify-center mb-8 animate-scale-in">
                         <Image
                             src="/logo.png"
                             alt="LOTO Safe Web App"
@@ -116,7 +110,7 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    <Card className="shadow-2xl border-2 border-gray-100">
+                    <Card className="shadow-2xl border-2 border-gray-100 animate-fade-in-up animate-delay-200">
                         <CardContent className="pt-8 pb-8 px-8">
                             <div className="mb-6">
                                 <h2 className="text-3xl font-bold text-dark mb-2">Sign in</h2>
@@ -125,7 +119,7 @@ export default function LoginPage() {
 
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 {error && (
-                                    <Card className="bg-red-50 border-red-200">
+                                    <Card className="bg-red-50 border-red-200 animate-fade-in">
                                         <CardContent className="pt-4 pb-4">
                                             <p className="text-red-700 font-medium text-sm">{error}</p>
                                         </CardContent>
@@ -197,20 +191,15 @@ export default function LoginPage() {
                             <div className="mt-6 text-center">
                                 <p className="text-sm text-gray-600">
                                     Don't have an account?{' '}
-                                    <button className="text-dark font-semibold hover:underline">
+                                    <a
+                                        href="https://wa.me/6285606169066"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-dark font-semibold hover:underline"
+                                    >
                                         Contact Admin
-                                    </button>
+                                    </a>
                                 </p>
-                            </div>
-
-                            {/* Test Credentials */}
-                            <div className="mt-6 pt-6 border-t border-gray-200">
-                                <p className="text-xs text-gray-400 text-center mb-2">Test Credentials:</p>
-                                <div className="flex justify-center">
-                                    <Badge variant="outline" className="font-mono text-xs">
-                                        admin / password123
-                                    </Badge>
-                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -220,7 +209,7 @@ export default function LoginPage() {
     )
 }
 
-// Feature Item Component
+
 function FeatureItem({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
     return (
         <div className="flex gap-4">
@@ -237,7 +226,7 @@ function FeatureItem({ icon, title, description }: { icon: React.ReactNode; titl
     )
 }
 
-// Modern SVG Icons
+
 function LockIcon() {
     return (
         <svg className="w-6 h-6 text-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

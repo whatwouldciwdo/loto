@@ -27,13 +27,39 @@ export async function POST(
             )
         }
 
-        const result = await ApprovalService.submitOperatorForm(
+        const result: any = await ApprovalService.submitOperatorForm(
             lotoId,
             session.userId,
-            session.role,
+            session.role as any, // Cast string to UserRole
             formData,
             submitType as 'draft' | 'execute'
         )
+
+        // Send WhatsApp Notification (Only for Execution)
+        if (submitType === 'execute') {
+            try {
+                const { WhatsappService } = await import('@/lib/services/whatsapp.service')
+                await WhatsappService.notifyExecution({
+                    requestNumber: result.requestNumber,
+                    workOrder: (result.formData as any)?.workorderNumber || '-',
+                    status: result.status,
+                    type: result.type,
+                    seksi: (result.formData as any)?.seksi || '-',
+                    description: (result.formData as any)?.description || '-',
+                    // Use Asset fields if available, otherwise fallback to form data. 
+                    // result.asset is joined so we use its fields.
+                    // Fallback logic for asset name
+                    equipment: result.asset?.equipmentName || (formData as any)?.equipmentName || (result.formData as any)?.operatorForm?.equipmentName || 'Asset ID: ' + result.assetId,
+                    peralatan: (formData as any)?.peralatan || '-',
+                    eksekusi: (formData as any)?.eksekusi || '-',
+                    eksekutor: (formData as any)?.eksekutor || '-',
+                    assetNumber: result.asset?.assetNumber || '-',
+                    creatorPhone: result.createdBy?.phoneNumber
+                })
+            } catch (err) {
+                console.error('Failed to send WhatsApp notification:', err)
+            }
+        }
 
         return NextResponse.json({
             success: true,

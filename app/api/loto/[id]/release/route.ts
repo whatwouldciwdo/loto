@@ -20,12 +20,30 @@ export async function POST(
         const body = await request.json()
         const { formData } = body
 
-        const result = await ApprovalService.submitRelease(
+        const result: any = await ApprovalService.submitRelease(
             lotoId,
             session.userId,
-            session.role,
+            session.role as any,
             formData
         )
+
+        // Send WhatsApp Notification
+        try {
+            const { WhatsappService } = await import('@/lib/services/whatsapp.service')
+            await WhatsappService.notifyRelease({
+                requestNumber: result.requestNumber,
+                workOrder: (result.formData as any)?.workorderNumber || (result.formData as any)?.operatorForm?.workorderNumber || '-',
+                status: result.status,
+                description: (result.formData as any)?.description || (result.formData as any)?.operatorForm?.description || '-',
+                equipment: result.asset?.equipmentName || (result.formData as any)?.equipmentName || 'Asset ID: ' + result.assetId,
+                eksekutorRelease: (formData as any)?.eksekutorRelease || '-',
+                keteranganRelease: (formData as any)?.keteranganRelease || '-',
+                creatorPhone: result.createdBy?.phoneNumber,
+                seksiHar: (result.formData as any)?.operatorForm?.seksiHAR || (result.formData as any)?.seksiHAR || '-'
+            })
+        } catch (err) {
+            console.error('Failed to send WhatsApp notification:', err)
+        }
 
         return NextResponse.json({
             success: true,

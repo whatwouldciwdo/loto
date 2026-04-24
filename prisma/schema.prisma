@@ -51,6 +51,7 @@ model User {
   name         String
   role         UserRole
   department   String?
+  phoneNumber  String?  @map("phone_number")
   isActive     Boolean  @default(true) @map("is_active")
   ldapEnabled  Boolean  @default(false) @map("ldap_enabled")
 

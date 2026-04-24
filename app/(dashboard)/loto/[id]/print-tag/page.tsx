@@ -61,7 +61,6 @@ export default function PrintTagPage({ params }: { params: { id: string } }) {
 
     return (
         <>
-            {/* Control bar - hidden when printing */}
             <div className="no-print" style={{
                 background: 'white',
                 borderBottom: '1px solid #e5e7eb',
@@ -100,13 +99,11 @@ export default function PrintTagPage({ params }: { params: { id: string } }) {
                 </div>
             </div>
 
-            {/* Tag preview / print area */}
             <PrintTag
                 lotoNumber={loto.requestNumber}
                 workDescription={workDescription}
             />
 
-            {/* Hide sidebar and nav on print */}
             <style jsx global>{`
                 @media print {
                     .no-print,

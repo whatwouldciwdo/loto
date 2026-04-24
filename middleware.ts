@@ -20,6 +20,8 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get(TOKEN_NAME)
 
     console.log('[Middleware] Path:', pathname)
+    console.log('[Middleware] Cookie header:', request.headers.get('cookie'))
+    console.log('[Middleware] Token value:', token?.value)
     console.log('[Middleware] Token exists:', !!token)
 
     if (!token) {

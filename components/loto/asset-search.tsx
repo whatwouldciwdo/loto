@@ -23,7 +23,7 @@ interface AssetSearchProps {
     selectedAsset?: Asset | null
 }
 
-export default function AssetSearchCombobox({ unit = 'CLG', onSelect, selectedAsset }: AssetSearchProps) {
+export default function AssetSearchCombobox({ unit, onSelect, selectedAsset }: AssetSearchProps) {
     const [searchQuery, setSearchQuery] = useState('')
     const [assets, setAssets] = useState<Asset[]>([])
     const [loading, setLoading] = useState(false)
@@ -45,7 +45,8 @@ export default function AssetSearchCombobox({ unit = 'CLG', onSelect, selectedAs
     const searchAssets = async () => {
         setLoading(true)
         try {
-            const response = await fetch(`/api/assets/search?q=${encodeURIComponent(searchQuery)}&unit=${unit}`)
+            const query = `/api/assets/search?q=${encodeURIComponent(searchQuery)}${unit ? `&unit=${unit}` : ''}`
+            const response = await fetch(query)
             const data = await response.json()
             if (response.ok) {
                 setAssets(data.data || [])
@@ -75,7 +76,7 @@ export default function AssetSearchCombobox({ unit = 'CLG', onSelect, selectedAs
                 <CardContent className="pt-6">
                     <div className="flex justify-between items-start">
                         <div className="flex-1">
-                            <p className="text-sm text-gray-600 mb-1">✅ Selected Equipment</p>
+                            <p className="text-sm text-gray-600 mb-1">Selected Equipment</p>
                             <p className="text-lg font-bold text-dark">{selectedAsset.equipmentName}</p>
                             <div className="mt-3 space-y-1">
                                 <p className="text-sm"><span className="font-semibold">Asset:</span> {selectedAsset.assetNumber}</p>
@@ -121,7 +122,6 @@ export default function AssetSearchCombobox({ unit = 'CLG', onSelect, selectedAs
                 Search by description, asset number, PIC
             </p>
 
-            {/* Search Results Dropdown */}
             {showResults && assets.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-96 overflow-y-auto">
                     {loading && (

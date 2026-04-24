@@ -21,7 +21,7 @@ export async function createTokenJose(payload: JWTPayload): Promise<string> {
 export async function verifyTokenJose(token: string): Promise<JWTPayload | null> {
     try {
         const { payload } = await jwtVerify(token, secret)
-        return payload as JWTPayload
+        return payload as unknown as JWTPayload
     } catch (error) {
         console.error('[verifyTokenJose] Error:', error)
         return null

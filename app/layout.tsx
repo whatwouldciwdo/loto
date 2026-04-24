@@ -4,7 +4,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 
 export const metadata: Metadata = {
-    title: "LOTO Management System",
+    title: "Energy Verification & Isolation",
     description: "Lockout/Tagout Management System for Equipment Safety",
 };
 

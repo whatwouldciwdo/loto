@@ -224,13 +224,11 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
 
-                        {/* No LOTO (Read Only) */}
                         <div className="space-y-2">
                             <Label>No LOTO</Label>
                             <Input value={lotoRequest.requestNumber} disabled className="bg-gray-100" />
                         </div>
 
-                        {/* Description Pekerjaan (Read Only) */}
                         <div className="space-y-2">
                             <Label>Description Pekerjaan</Label>
                             <Textarea
@@ -240,7 +238,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             />
                         </div>
 
-                        {/* Asset / Equipment (Read Only) */}
                         <div className="space-y-2">
                             <Label>Nama Asset / Equipment</Label>
                             <div className="p-3 bg-gray-100 border rounded-md text-sm text-gray-500">
@@ -248,13 +245,11 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             </div>
                         </div>
 
-                        {/* Peralatan (Read Only) */}
                         <div className="space-y-2">
                             <Label>Peralatan</Label>
                             <Input value={PERALATAN_OPTIONS.find(o => o.value === formData.peralatan)?.label || formData.peralatan} disabled className="bg-gray-100" />
                         </div>
 
-                        {/* Eksekusi (Editable) */}
                         <div className="space-y-2">
                             <Label htmlFor="eksekusi">Eksekusi <span className="text-red-500">*</span></Label>
                             <Select
@@ -275,19 +270,16 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             <p className="text-xs text-gray-500">Sesuaikan posisi peralatan untuk normalisasi (Release)</p>
                         </div>
 
-                        {/* Eksekutor (Read Only - Original Operator) */}
                         <div className="space-y-2">
                             <Label>Eksekutor (Operator Awal)</Label>
                             <Input value={formData.eksekutor} disabled className="bg-gray-100" />
                         </div>
 
-                        {/* Seksi HAR (Read Only) */}
                         <div className="space-y-2">
                             <Label>Seksi HAR</Label>
                             <Input value={formData.seksiHAR} disabled className="bg-gray-100" />
                         </div>
 
-                        {/* Keterangan (Read Only - Original) */}
                         <div className="space-y-2">
                             <Label>Keterangan Awal</Label>
                             <Textarea
@@ -297,7 +289,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             />
                         </div>
 
-                        {/* Eksekutor Release (New Field) */}
                         <div className="space-y-2">
                             <Label htmlFor="eksekutorRelease">Eksekutor Release (OPS) <span className="text-red-500">*</span></Label>
                             <Select
@@ -317,7 +308,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             </Select>
                         </div>
 
-                        {/* Keterangan Release (New Field) */}
                         <div className="space-y-2">
                             <Label htmlFor="keteranganRelease">Keterangan Release</Label>
                             <Textarea
@@ -329,7 +319,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             />
                         </div>
 
-                        {/* Dokumentasi Foto Evidence */}
                         <div className="space-y-3">
                             <Label className="flex items-center gap-2">
                                 <Camera className="w-4 h-4" />
@@ -337,7 +326,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                             </Label>
                             <p className="text-xs text-gray-500">Lampirkan foto bukti kondisi equipment setelah release (maks 5MB per foto)</p>
 
-                            {/* Upload Area */}
                             <div
                                 className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-neon hover:bg-neon/5 transition-colors cursor-pointer"
                                 onClick={() => fileInputRef.current?.click()}
@@ -364,7 +352,6 @@ export default function ReleasePage({ params }: { params: { id: string } }) {
                                 )}
                             </div>
 
-                            {/* Photo Previews */}
                             {evidencePhotos.length > 0 && (
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                     {evidencePhotos.map((photo, index) => (

@@ -14,11 +14,9 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         size: 7.5cm 11cm;
                         margin: 0;
                     }
-                    /* Hide everything */
                     body * {
                         visibility: hidden;
                     }
-                    /* Show only the tag and its children */
                     .loto-tag, .loto-tag * {
                         visibility: visible !important;
                         -webkit-print-color-adjust: exact !important;
@@ -66,14 +64,12 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                     fontFamily: 'Arial, Helvetica, sans-serif',
                 }}>
 
-                    {/* === ROW 1: PLN Logo + NOMOR LOTO + K3 Icon === */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         padding: '8px 8px 4px 8px',
                         gap: '6px',
                     }}>
-                        {/* PLN Logo */}
                         <div style={{
                             width: '32px',
                             height: '32px',
@@ -92,7 +88,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             />
                         </div>
 
-                        {/* Nomor LOTO Box */}
                         <div style={{
                             flex: 1,
                             backgroundColor: 'white',
@@ -117,7 +112,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             }}>{lotoNumber}</div>
                         </div>
 
-                        {/* K3 Green Icon - Modern SVG */}
                         <div style={{
                             width: '32px',
                             height: '32px',
@@ -134,7 +128,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         </div>
                     </div>
 
-                    {/* === ROW 2: Company Name === */}
                     <div style={{
                         margin: '0 8px 6px 8px',
                         backgroundColor: 'white',
@@ -151,7 +144,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         }}>PT PLN INDONESIA POWER CILEGON</div>
                     </div>
 
-                    {/* === MAIN SECTION: BAHAYA === */}
                     <div style={{
                         flex: 1,
                         display: 'flex',
@@ -161,14 +153,12 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         padding: '0',
                         gap: '4px',
                     }}>
-                        {/* Warning Triangle + BAHAYA */}
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '8px',
                         }}>
-                            {/* Modern Warning Triangle SVG */}
                             <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                                 <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" fill="#FBBF24" stroke="#92400E" strokeWidth="0.5" />
                                 <line x1="12" y1="9" x2="12" y2="13" stroke="#92400E" strokeWidth="2" strokeLinecap="round" />
@@ -183,7 +173,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             }}>BAHAYA</span>
                         </div>
 
-                        {/* Warning Icon */}
                         <div style={{
                             width: '72px',
                             height: '72px',
@@ -203,7 +192,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             />
                         </div>
 
-                        {/* DILARANG DIOPERASIKAN text */}
                         <div style={{
                             fontSize: '20px',
                             fontWeight: '900',
@@ -217,7 +205,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         </div>
                     </div>
 
-                    {/* === DESKRIPSI PEKERJAAN === */}
                     <div style={{
                         margin: '4px 8px',
                         backgroundColor: 'white',
@@ -246,7 +233,6 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         }}>{workDescription || '-'}</div>
                     </div>
 
-                    {/* === YELLOW FOOTER === */}
                     <div style={{
                         backgroundColor: '#FCD34D',
                         padding: '8px 12px',

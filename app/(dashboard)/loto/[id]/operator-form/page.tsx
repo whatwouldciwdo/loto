@@ -101,6 +101,12 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                         unit: saved.unit || '',
                     })
                 }
+            } else {
+                // Pre-fill description from LOTO request if no operator form data exists
+                setFormData(prev => ({
+                    ...prev,
+                    descriptionPekerjaan: loto.formData?.description || ''
+                }))
             }
         } catch (err: any) {
             showToast('error', 'Error', err.message || 'Failed to load LOTO request')
@@ -181,7 +187,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
-            {/* Header */}
             <div className="mb-8">
                 <div className="flex items-center gap-3 mb-3">
                     <div className="bg-gradient-to-br from-orange-500 to-orange-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
@@ -197,14 +202,12 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                 </p>
             </div>
 
-            {/* Form */}
             <div className="max-w-5xl">
                 <Card className="mb-6 border-2 border-gray-200">
                     <CardHeader className="bg-gradient-to-r from-orange-50 to-white">
                         <CardTitle className="text-2xl">Detail Eksekusi</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
-                        {/* No LOTO (Read-only) */}
                         <div>
                             <Label className="text-base font-semibold mb-2 block">
                                 No LOTO
@@ -216,7 +219,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             />
                         </div>
 
-                        {/* Description Pekerjaan */}
                         <div>
                             <Label htmlFor="descriptionPekerjaan" className="text-base font-semibold mb-2 block">
                                 Description Pekerjaan <span className="text-red-500">*</span>
@@ -231,7 +233,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             />
                         </div>
 
-                        {/* Asset Selection */}
                         <div>
                             <Label className="text-base font-semibold mb-3 block">
                                 Nama Asset / Equipment <span className="text-red-500">*</span>
@@ -243,7 +244,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             />
                             <p className="text-xs text-gray-500 mt-2">Cari dan pilih asset dari database</p>
 
-                            {/* Selected Asset Display */}
                             {selectedAsset && (
                                 <div className="mt-4 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
                                     <div className="flex items-center gap-2 mb-2">
@@ -267,7 +267,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             )}
                         </div>
 
-                        {/* Peralatan Dropdown */}
                         <div>
                             <Label htmlFor="peralatan" className="text-base font-semibold mb-2 block">
                                 Peralatan <span className="text-red-500">*</span>
@@ -290,7 +289,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             </Select>
                         </div>
 
-                        {/* Eksekusi Dropdown (Conditional) */}
                         <div>
                             <Label htmlFor="eksekusi" className="text-base font-semibold mb-2 block">
                                 Eksekusi <span className="text-red-500">*</span>
@@ -323,7 +321,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             </p>
                         </div>
 
-                        {/* Eksekutor (Team Leader) */}
                         <div>
                             <Label htmlFor="eksekutor" className="text-base font-semibold mb-2 block">
                                 Eksekutor (Team Leader) <span className="text-red-500">*</span>
@@ -347,7 +344,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             <p className="text-xs text-gray-500 mt-1">Nama team leader akan diumumkan (TBA)</p>
                         </div>
 
-                        {/* Keterangan */}
                         <div>
                             <Label htmlFor="keterangan" className="text-base font-semibold mb-2 block">
                                 Keterangan
@@ -361,7 +357,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                             />
                         </div>
 
-                        {/* Seksi HAR */}
                         <div>
                             <Label htmlFor="seksiHAR" className="text-base font-semibold mb-2 block">
                                 Seksi HAR <span className="text-red-500">*</span>
@@ -387,7 +382,6 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                     </CardContent>
                 </Card>
 
-                {/* Dual Submit Buttons */}
                 <div className="flex gap-4">
                     <Button
                         type="button"

@@ -100,13 +100,11 @@ export default function ProfilePage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-            {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-dark mb-2">Profile</h1>
                 <p className="text-gray-600">Kelola profil dan keamanan akun Anda</p>
             </div>
 
-            {/* Profile Info Card */}
             <Card className="mb-6 overflow-hidden">
                 <div className="bg-gradient-to-r from-dark to-gray-800 p-6">
                     <div className="flex items-center gap-4">
@@ -142,7 +140,6 @@ export default function ProfilePage() {
                 </CardContent>
             </Card>
 
-            {/* Change Password Card */}
             <Card>
                 <CardHeader className="bg-gray-50 border-b">
                     <CardTitle className="flex items-center gap-2">
@@ -152,7 +149,6 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                     <form onSubmit={handleChangePassword} className="space-y-5">
-                        {/* Current Password */}
                         <div className="space-y-2">
                             <Label htmlFor="currentPassword" className="flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-gray-500" />
@@ -177,7 +173,6 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        {/* New Password */}
                         <div className="space-y-2">
                             <Label htmlFor="newPassword" className="flex items-center gap-2">
                                 <KeyRound className="w-4 h-4 text-gray-500" />
@@ -203,7 +198,6 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        {/* Confirm Password */}
                         <div className="space-y-2">
                             <Label htmlFor="confirmPassword" className="flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-gray-500" />

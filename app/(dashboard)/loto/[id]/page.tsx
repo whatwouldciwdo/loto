@@ -87,7 +87,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
-            {/* Header */}
             <div className="mb-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
                     <div>
@@ -108,7 +107,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                 </Button>
             </div>
 
-            {/* Workflow Progress - Horizontal */}
             <Card className="mb-6">
                 <CardHeader className="bg-gradient-to-r from-dark to-gray-800">
                     <CardTitle className="flex items-center gap-2 text-white">
@@ -118,9 +116,7 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                 </CardHeader>
                 <CardContent className="pt-8 pb-6 px-6">
                     <div className="flex items-start justify-between relative">
-                        {/* Progress Line Background */}
                         <div className="absolute top-5 left-[10%] right-[10%] h-1 bg-gray-200 rounded-full" />
-                        {/* Progress Line Active */}
                         <div
                             className="absolute top-5 left-[10%] h-1 rounded-full transition-all duration-700"
                             style={{
@@ -131,7 +127,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                             }}
                         />
 
-                        {/* Step 1: Created */}
                         <div className="flex flex-col items-center z-10 flex-1">
                             <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shadow-lg ring-4 ring-green-100">
                                 <CheckCircle2 className="w-5 h-5 text-white" />
@@ -140,7 +135,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                             <p className="text-xs text-gray-500 mt-1 text-center">By {loto.createdBy.name}</p>
                         </div>
 
-                        {/* Step 2: Operator Execution */}
                         <div className="flex flex-col items-center z-10 flex-1">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ring-4 ${(loto.status === 'REQUEST' || loto.status === 'DRAFT') ? 'bg-gray-300 ring-gray-100 text-gray-500' :
                                 loto.status === 'ACTIVE' ? 'bg-neon ring-yellow-100 text-dark animate-pulse' :
@@ -165,7 +159,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                             {loto.operator && <p className="text-xs text-gray-400 mt-0.5">{loto.operator.name}</p>}
                         </div>
 
-                        {/* Step 3: Release */}
                         <div className="flex flex-col items-center z-10 flex-1">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ring-4 ${loto.status === 'CLOSE' ? 'bg-blue-500 ring-blue-100 text-white' :
                                 loto.status === 'ACTIVE' ? 'bg-gray-300 ring-gray-100 text-gray-500 animate-pulse' :
@@ -189,7 +182,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                 </CardContent>
             </Card>
 
-            {/* Request Details */}
             <Card className="mb-6">
                 <CardHeader className="bg-gray-50 border-b">
                     <CardTitle className="flex items-center gap-2">
@@ -198,7 +190,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                    {/* Summary Row */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
                         <div>
                             <p className="text-xs text-gray-500 uppercase tracking-wide">Request No.</p>
@@ -220,7 +211,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                         </div>
                     </div>
 
-                    {/* Date Info */}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                         <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
                             <Calendar className="w-4 h-4 text-gray-400" />
@@ -247,7 +237,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                         )}
                     </div>
 
-                    {/* Form Data */}
                     <div className="border-t pt-5">
                         <h3 className="font-bold text-sm uppercase tracking-wide text-gray-500 mb-4 flex items-center gap-2">
                             <ClipboardList className="w-4 h-4" />
@@ -273,7 +262,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                         </div>
                     </div>
 
-                    {/* Operator Form Data */}
                     {loto.formData.operatorForm && (
                         <div className="border-t mt-6 pt-5">
                             <h3 className="font-bold text-sm uppercase tracking-wide text-gray-500 mb-4 flex items-center gap-2">
@@ -319,7 +307,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                         </div>
                     )}
 
-                    {/* Release Details */}
                     {loto.formData.releaseForm && (
                         <div className="border-t mt-6 pt-5">
                             <h3 className="font-bold text-sm uppercase tracking-wide text-gray-500 mb-4 flex items-center gap-2">
@@ -343,7 +330,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                                 )}
                             </div>
 
-                            {/* Evidence Photos */}
                             {loto.formData.releaseForm.evidencePhotos && loto.formData.releaseForm.evidencePhotos.length > 0 && (
                                 <div className="mt-6">
                                     <h4 className="font-semibold text-sm text-gray-600 mb-3 flex items-center gap-2">
@@ -378,7 +364,6 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                 </CardContent>
             </Card>
 
-            {/* Action Buttons */}
             <Card>
                 <CardHeader className="bg-gray-50">
                     <CardTitle className="flex items-center gap-2">
