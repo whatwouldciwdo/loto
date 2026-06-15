@@ -5,8 +5,6 @@ const prisma = new PrismaClient()
 
 async function main() {
     console.log('🌱 Starting database seed...')
-
-    // Clear existing data (careful in production!)
     await prisma.lotoAttachment.deleteMany()
     await prisma.lotoHistory.deleteMany()
     await prisma.lotoApproval.deleteMany()
@@ -16,18 +14,14 @@ async function main() {
 
     console.log('✅ Cleared existing data')
 
-    // Create users with different roles — all password: password123
     const hashedPassword = await bcrypt.hash('password123', 10)
 
     const users = [
-        // ADMIN
         { username: 'admin', name: 'System Administrator', email: 'admin@loto.co.id', role: UserRole.ADMIN, department: 'IT' },
-        // OPERATORS
         { username: 'OPS-A', name: 'OPS-GROUP-A', email: 'ops-a@loto.co.id', role: UserRole.OPERATOR, department: 'OPERASI' },
         { username: 'OPS-B', name: 'OPS-GROUP-B', email: 'ops-b@loto.co.id', role: UserRole.OPERATOR, department: 'OPERASI' },
         { username: 'OPS-C', name: 'OPS-GROUP-C', email: 'ops-c@loto.co.id', role: UserRole.OPERATOR, department: 'OPERASI' },
         { username: 'OPS-D', name: 'OPS-GROUP-D', email: 'ops-d@loto.co.id', role: UserRole.OPERATOR, department: 'OPERASI' },
-        // PEMELIHARAAN
         { username: 'HAR-PREDICT', name: 'HAR-PREDICT', email: 'har-predict@loto.co.id', role: UserRole.PEMELIHARAAN, department: 'RCBM' },
         { username: 'SARANA', name: 'SARANA', email: 'sarana@loto.co.id', role: UserRole.PEMELIHARAAN, department: 'Umum' },
         { username: 'HAR-BOP', name: 'HAR-BOP', email: 'har-bop@loto.co.id', role: UserRole.PEMELIHARAAN, department: 'Pemeliharaan BOP' },

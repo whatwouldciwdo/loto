@@ -4,7 +4,7 @@ import { lotoRequestSchema } from '@/lib/validators'
 import { createLotoRequest, getLotoRequests } from '@/lib/services/loto.service'
 import { LotoType, LotoStatus } from '@prisma/client'
 
-// GET /api/loto - Get all LOTO requests
+// GET /api/loto - Ambil semua LOTO request
 export async function GET(request: NextRequest) {
     try {
         const session = await requireAuth()
@@ -16,9 +16,6 @@ export async function GET(request: NextRequest) {
         const filters: any = {}
         if (status) filters.status = status
         if (type) filters.type = type
-
-        // Filter by user role
-        // For now, show all. Later we can add role-based filtering
 
         const lotoRequests = await getLotoRequests(filters)
 
@@ -37,16 +34,14 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST /api/loto - Create new LOTO request
+// POST /api/loto - Buat LOTO request baru
 export async function POST(request: NextRequest) {
     try {
         const session = await requireAuth()
         const body = await request.json()
 
-        // Validate input
         const validatedData = lotoRequestSchema.parse(body)
 
-        // Create LOTO request
         const lotoRequest = await createLotoRequest({
             type: validatedData.type,
             createdById: session.userId,
@@ -54,14 +49,8 @@ export async function POST(request: NextRequest) {
             formData: validatedData.formData,
         })
 
-        // Send WhatsApp Notification
+        // Kirim notifikasi WhatsApp
         try {
-            console.log('[LOTO API] Preparing WhatsApp notification...')
-            console.log('[LOTO API] Request Number:', lotoRequest.requestNumber)
-            console.log('[LOTO API] Seksi:', validatedData.formData.seksi)
-            console.log('[LOTO API] Description:', validatedData.formData.description)
-
-            // Get creator's phone number from database
             const { default: prisma } = await import('@/lib/db/prisma')
             const creator = await prisma.user.findUnique({
                 where: { id: session.userId },
@@ -69,17 +58,14 @@ export async function POST(request: NextRequest) {
             })
 
             const { WhatsappService } = await import('@/lib/services/whatsapp.service')
-
-            console.log('[LOTO API] Calling WhatsappService.notifyNewRequest...')
             await WhatsappService.notifyNewRequest(
                 lotoRequest.requestNumber,
                 validatedData.formData.description || '-',
                 validatedData.type,
                 validatedData.formData.seksi || '-',
                 session.username,
-                creator?.phoneNumber // Pass creator's phone number
+                creator?.phoneNumber
             )
-            console.log('[LOTO API] WhatsApp notification sent successfully')
         } catch (err) {
             console.error('[LOTO API] Failed to send WhatsApp notification:', err)
         }

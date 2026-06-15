@@ -4,7 +4,7 @@ import { ApprovalService } from '@/lib/services/approval.service'
 
 /**
  * POST /api/loto/[id]/operator-form
- * Operator submits tagging form (CAT.03)
+ * Operator submit form tagging (CAT.03)
  */
 export async function POST(
     request: NextRequest,
@@ -19,7 +19,6 @@ export async function POST(
         const lotoId = params.id
         const { formData, submitType } = await request.json()
 
-        // Validate submitType
         if (!submitType || !['draft', 'execute'].includes(submitType)) {
             return NextResponse.json(
                 { error: 'Invalid submitType. Must be "draft" or "execute"' },
@@ -30,12 +29,12 @@ export async function POST(
         const result: any = await ApprovalService.submitOperatorForm(
             lotoId,
             session.userId,
-            session.role as any, // Cast string to UserRole
+            session.role as any,
             formData,
             submitType as 'draft' | 'execute'
         )
 
-        // Send WhatsApp Notification (Only for Execution)
+        // Kirim notifikasi WhatsApp hanya saat execute
         if (submitType === 'execute') {
             try {
                 const { WhatsappService } = await import('@/lib/services/whatsapp.service')
@@ -46,9 +45,6 @@ export async function POST(
                     type: result.type,
                     seksi: (result.formData as any)?.seksi || '-',
                     description: (result.formData as any)?.description || '-',
-                    // Use Asset fields if available, otherwise fallback to form data. 
-                    // result.asset is joined so we use its fields.
-                    // Fallback logic for asset name
                     equipment: result.asset?.equipmentName || (formData as any)?.equipmentName || (result.formData as any)?.operatorForm?.equipmentName || 'Asset ID: ' + result.assetId,
                     peralatan: (formData as any)?.peralatan || '-',
                     eksekusi: (formData as any)?.eksekusi || '-',

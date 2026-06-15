@@ -1,14 +1,12 @@
 
-// Map of Seksi/Department to Phone Numbers
-// FORMAT: International format WITHOUT + (e.g., 628123456789)
+// Map Seksi/Department ke Nomor Telepon
+// Format: Internasional tanpa + (contoh: 628123456789)
 export const SEKSI_PHONE_NUMBERS: Record<string, string> = {
-    // Operations - From Database
     'OPS A (IHWANSYAH WIBOWO)': '628571050693',
     'OPS B (UNTUNG RIYADI)': '628777170810',
     'OPS C (SULISTIYONO)': '628787158107',
     'OPS D (YAYAN SURYANA)': '6287788516425',
 
-    // Maintenance (HAR) - From Database
     'HAR-MECH (JUWAN OKTAVIANSA)': '6281380712262',
     'HAR-I&C (YUDI NUGRAHA)': '6281331582934',
     'HAR-ELEC (GUNAWAN)': '681212363710',
@@ -17,7 +15,6 @@ export const SEKSI_PHONE_NUMBERS: Record<string, string> = {
     'HAR-PREDIKTIF (PEBRIANTO GINTING)': '6281260157164',
 }
 
-// Map of Executor/Team Leader to Phone Numbers - From Database
 export const EKSEKUTOR_PHONE_NUMBERS: Record<string, string> = {
     'OPS A (IHWANSYAH WIBOWO)': '685710506932',
     'OPS B (UNTUNG RIYADI)': '6287771708109',
@@ -27,11 +24,5 @@ export const EKSEKUTOR_PHONE_NUMBERS: Record<string, string> = {
 
 export const getPhoneNumber = (name: string): string | null => {
     if (!name) return null
-    const number = SEKSI_PHONE_NUMBERS[name] || EKSEKUTOR_PHONE_NUMBERS[name] || null
-    if (!number) {
-        console.warn(`[WhatsApp Config] ❌ Number not found for: "${name}". Available keys:`, Object.keys({ ...SEKSI_PHONE_NUMBERS, ...EKSEKUTOR_PHONE_NUMBERS }))
-    } else {
-        console.log(`[WhatsApp Config] ✅ Found number for "${name}": ${number}`)
-    }
-    return number
+    return SEKSI_PHONE_NUMBERS[name] || EKSEKUTOR_PHONE_NUMBERS[name] || null
 }

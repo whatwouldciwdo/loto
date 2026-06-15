@@ -7,12 +7,12 @@ interface MessageData {
 }
 
 export class WhatsappService {
-    private static API_URL = process.env.WHATSAPP_API_URL || 'https://wuzapi-tceo8mb6myiz.sgp-wisanggeni.sumopod.my.id'
-    private static API_KEY = process.env.WHATSAPP_API_KEY || 'Jp0hfP9l2RwRzMSVY1I1f7wIr7?3b4m0'
+    private static API_URL = process.env.WHATSAPP_API_URL
+    private static API_KEY = process.env.WHATSAPP_API_KEY
 
     /**
-     * Send WhatsApp message via Wuzapi
-     * Wuzapi expects phone numbers in international format without + (e.g., 628123456789)
+     * Kirim pesan WhatsApp via Wuzapi
+     * Format nomor: internasional tanpa + (contoh: 628123456789)
      */
     static async send(to: string, message: string): Promise<any> {
         if (!to || !message) {
@@ -20,17 +20,14 @@ export class WhatsappService {
             return
         }
 
-        // Ensure token is configured
         if (!this.API_KEY) {
             console.warn('WhatsappService: WHATSAPP_API_KEY not configured')
             return
         }
 
         try {
-            // Format phone number: remove '+' and ensure it starts with country code   
             const phone = to.replace(/^\+/, '')
 
-            // Determine if using HTTP or HTTPS
             const { URL } = await import('url')
             const apiUrl = new URL(`${this.API_URL}/chat/send/text`)
             const isHttps = apiUrl.protocol === 'https:'
@@ -52,13 +49,11 @@ export class WhatsappService {
                 }
             }
 
-            // Only add SSL config for HTTPS
             if (isHttps) {
                 options.rejectUnauthorized = false
             }
 
             return new Promise((resolve, reject) => {
-                // Use http or https module based on protocol
                 const httpModule = isHttps
                     ? import('https').then(m => m.default)
                     : import('http').then(m => m.default)
@@ -74,10 +69,8 @@ export class WhatsappService {
                         res.on('end', () => {
                             try {
                                 const result = JSON.parse(data)
-                                console.log('WhatsappService Result:', result)
                                 resolve(result)
-                            } catch (err) {
-                                console.log('WhatsappService Response (raw):', data)
+                            } catch {
                                 resolve({ raw: data })
                             }
                         })
@@ -100,7 +93,7 @@ export class WhatsappService {
     }
 
     /**
-     * Send notification for New LOTO Request
+     * Notifikasi LOTO Request baru dibuat
      */
     static async notifyNewRequest(
         requestNumber: string,
@@ -110,11 +103,6 @@ export class WhatsappService {
         creatorName: string,
         creatorPhone?: string | null
     ) {
-        console.log('[WhatsappService] notifyNewRequest called')
-        console.log('[WhatsappService] Seksi Tujuan:', seksiTujuan)
-        console.log('[WhatsappService] Creator Phone:', creatorPhone)
-
-        // 1. Notify Creator (confirmation)
         if (creatorPhone) {
             const creatorMsg = `*LOTO REQUEST BERHASIL DIBUAT* ✅
         
@@ -125,18 +113,11 @@ Tujuan: ${seksiTujuan}
 
 Request Anda telah berhasil dibuat dan dikirim ke seksi terkait.
 `
-            console.log('[WhatsappService] Sending confirmation to creator:', creatorPhone)
             await this.send(creatorPhone, creatorMsg)
         }
 
-        // 2. Notify Seksi Tujuan
         const phone = getPhoneNumber(seksiTujuan)
-        console.log('[WhatsappService] Phone number found for seksi:', phone)
-
-        if (!phone) {
-            console.log(`[WhatsappService] ❌ No phone number found for seksi: ${seksiTujuan}`)
-            return
-        }
+        if (!phone) return
 
         const message = `*NEW LOTO REQUEST*
         
@@ -148,12 +129,11 @@ Tujuan: ${seksiTujuan}
 
 Mohon segera diproses.
 `
-        console.log('[WhatsappService] Sending message to seksi:', phone)
         await this.send(phone, message)
     }
 
     /**
-     * Send notification for Operator Execution
+     * Notifikasi eksekusi LOTO (CAT.03)
      */
     static async notifyExecution(data: {
         requestNumber: string,
@@ -169,7 +149,6 @@ Mohon segera diproses.
         assetNumber: string,
         creatorPhone?: string | null
     }) {
-        console.log('[WhatsappService] notifyExecution payload:', JSON.stringify(data, null, 2))
         const msg = `*LOTO EXECUTION REPORT*
 
 No. Request: ${data.requestNumber}
@@ -184,18 +163,15 @@ Eksekutor: ${data.eksekutor}
 
 Ket: ${data.description}
 `
-        // 1. Notify Creator
         if (data.creatorPhone) {
             await this.send(data.creatorPhone, msg)
         }
 
-        // 2. Notify Eksekutor (Team Leader)
         const eksekutorPhone = getPhoneNumber(data.eksekutor)
         if (eksekutorPhone) {
             await this.send(eksekutorPhone, msg)
         }
 
-        // 3. Notify Seksi Har
         const seksiPhone = getPhoneNumber(data.seksi)
         if (seksiPhone) {
             await this.send(seksiPhone, msg)
@@ -203,7 +179,7 @@ Ket: ${data.description}
     }
 
     /**
-     * Send notification for LOTO Release
+     * Notifikasi release LOTO (CAT.06)
      */
     static async notifyRelease(data: {
         requestNumber: string,
@@ -216,7 +192,6 @@ Ket: ${data.description}
         creatorPhone?: string | null,
         seksiHar: string
     }) {
-        console.log('[WhatsappService] notifyRelease payload:', JSON.stringify(data, null, 2))
         const msg = `*LOTO RELEASE REPORT*
 
 No. Request: ${data.requestNumber}
@@ -228,18 +203,15 @@ Ket. Release: ${data.keteranganRelease}
 
 LOTO telah dicabut dan normalisasi selesai.
 `
-        // 1. Notify Creator
         if (data.creatorPhone) {
             await this.send(data.creatorPhone, msg)
         }
 
-        // 2. Notify Eksekutor Release (Team Leader)
         const eksekutorPhone = getPhoneNumber(data.eksekutorRelease)
         if (eksekutorPhone) {
             await this.send(eksekutorPhone, msg)
         }
 
-        // 3. Notify Seksi Har
         const seksiPhone = getPhoneNumber(data.seksiHar)
         if (seksiPhone) {
             await this.send(seksiPhone, msg)

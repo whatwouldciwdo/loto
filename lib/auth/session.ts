@@ -7,9 +7,6 @@ export async function getSession(): Promise<JWTPayload | null> {
     const cookieStore = await cookies()
     const token = cookieStore.get(TOKEN_NAME)
 
-    console.log('[getSession] Cookie store:', cookieStore.getAll().map(c => c.name))
-    console.log('[getSession] Token found:', !!token)
-
     if (!token) {
         return null
     }

@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Dependencies
 node_modules/
@@ -31,6 +32,7 @@ lerna-debug.log*
 *.sln
 *.sw?
 .DS_Store
+Thumbs.db
 
 # Test coverage
 coverage/
@@ -57,12 +59,42 @@ public/uploads/
 *.sql
 *.dump
 
-# OS files
-Thumbs.db
-.DS_Store
-
 # TypeScript
 *.tsbuildinfo
 
-# Production
-.env.production
+# Data files — jangan push ke repo
+*.xlsx
+*.xls
+excel-check.txt
+
+# File test & debug
+test-whatsapp.js
+app/test/
+app/api/test-whatsapp/
+
+# Scripts utilitas lokal — tidak perlu di repo
+scripts/check-assets.ts
+scripts/check-count.ts
+scripts/check-excel.ts
+scripts/check-phones.ts
+scripts/inspect-excel.ts
+scripts/read-excel.ts
+scripts/cleanup-test-data.ts
+scripts/fix-backup.ts
+scripts/backup-prisma.ts
+scripts/backup-database.bat
+scripts/restore-database.bat
+scripts/update-admin-phone.ts
+scripts/import-assets.ts
+
+# Catatan AI/troubleshooting — tidak perlu di repo
+DEPLOYMENT.md
+FIND_WUZAPI_URL.md
+FIX_DNS_HOSTS.md
+QUICK_DEPLOY.md
+SSL_ERROR_SOLUTIONS.md
+SSL_FIX_GUIDE.md
+TEST_NOW.md
+TROUBLESHOOTING_WHATSAPP.md
+WHATSAPP_TEST_GUIDE.md
+WUZAPI_SETUP.md
