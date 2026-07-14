@@ -4,6 +4,9 @@ import { lotoRequestSchema } from '@/lib/validators'
 import { createLotoRequest, getLotoRequests } from '@/lib/services/loto.service'
 import { LotoType, LotoStatus } from '@prisma/client'
 
+// This route reads auth cookies, so it must never be statically prerendered
+export const dynamic = 'force-dynamic'
+
 // GET /api/loto - Ambil semua LOTO request
 export async function GET(request: NextRequest) {
     try {
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
             formData: validatedData.formData,
         })
 
-        // Kirim notifikasi WhatsApp
+        // Kirim notifikasi WhatsApp (WAHA)
         try {
             const { default: prisma } = await import('@/lib/db/prisma')
             const creator = await prisma.user.findUnique({

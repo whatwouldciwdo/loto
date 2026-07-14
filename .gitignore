@@ -56,8 +56,10 @@ exports/
 public/uploads/
 
 # Database dumps
-*.sql
 *.dump
+/backups/*.sql
+# NOTE: do NOT ignore prisma/migrations/**/*.sql — those must be committed
+# so `prisma migrate deploy` works on the server.
 
 # TypeScript
 *.tsbuildinfo
@@ -67,7 +69,7 @@ public/uploads/
 *.xls
 excel-check.txt
 
-# File test & debug
+# File test & debug — lokal saja
 test-whatsapp.js
 app/test/
 app/api/test-whatsapp/
@@ -87,8 +89,7 @@ scripts/restore-database.bat
 scripts/update-admin-phone.ts
 scripts/import-assets.ts
 
-# Catatan AI/troubleshooting — tidak perlu di repo
-DEPLOYMENT.md
+# Catatan AI/troubleshooting lama — tidak perlu di repo
 FIND_WUZAPI_URL.md
 FIX_DNS_HOSTS.md
 QUICK_DEPLOY.md

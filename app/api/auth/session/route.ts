@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth/session'
 
+// This route reads auth cookies, so it must never be statically prerendered
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
+
     try {
         const session = await getSession()
 

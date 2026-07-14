@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth/session'
 import prisma from '@/lib/db/prisma'
 
+// This route reads auth cookies, so it must never be statically prerendered
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/assets/search?q={query}&unit={unit}
+
  * Search assets by name or number
  */
 export async function GET(request: NextRequest) {

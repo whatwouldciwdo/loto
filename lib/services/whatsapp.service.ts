@@ -1,99 +1,85 @@
-
 import { getPhoneNumber } from '@/lib/whatsapp-config'
 
-interface MessageData {
-    to: string
-    message: string
-}
-
+/**
+ * WhatsApp integration via WAHA (WhatsApp HTTP API)
+ * Dashboard: http://10.8.140.67:8310/dashboard/
+ *
+ * WAHA send-text contract:
+ *   POST {WAHA_API_URL}/api/sendText
+ *   Headers: { 'X-Api-Key': <key>, 'Content-Type': 'application/json' }
+ *   Body:    { session, chatId: '628xxxxxxxxxx@c.us', text }
+ */
 export class WhatsappService {
-    private static API_URL = process.env.WHATSAPP_API_URL
-    private static API_KEY = process.env.WHATSAPP_API_KEY
+    // Base URL of the WAHA server (no trailing slash)
+    private static API_URL = (process.env.WHATSAPP_API_URL || 'http://10.8.140.67:8310').replace(/\/+$/, '')
+    // WAHA API key (configured via WAHA_API_KEY on the WAHA server)
+    private static API_KEY = process.env.WHATSAPP_API_KEY || ''
+    // WAHA session name (default session is usually "default")
+    private static SESSION = process.env.WHATSAPP_SESSION || 'default'
 
     /**
-     * Kirim pesan WhatsApp via Wuzapi
-     * Format nomor: internasional tanpa + (contoh: 628123456789)
+     * Convert an international phone number (e.g. 628123456789) to a WAHA chatId.
+     */
+    private static toChatId(phone: string): string {
+        const digits = phone.replace(/[^0-9]/g, '')
+        return `${digits}@c.us`
+    }
+
+    /**
+     * Send a WhatsApp message via WAHA.
+     * Phone numbers must be in international format without '+' (e.g., 628123456789).
      */
     static async send(to: string, message: string): Promise<any> {
         if (!to || !message) {
-            console.warn('WhatsappService: Missing recipient or message')
+            console.warn('[WhatsappService] Missing recipient or message')
             return
         }
 
-        if (!this.API_KEY) {
-            console.warn('WhatsappService: WHATSAPP_API_KEY not configured')
-            return
+        const chatId = this.toChatId(to)
+        const endpoint = `${this.API_URL}/api/sendText`
+
+        const payload = {
+            session: this.SESSION,
+            chatId,
+            text: message,
+        }
+
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+        if (this.API_KEY) {
+            headers['X-Api-Key'] = this.API_KEY
         }
 
         try {
-            const phone = to.replace(/^\+/, '')
-
-            const { URL } = await import('url')
-            const apiUrl = new URL(`${this.API_URL}/chat/send/text`)
-            const isHttps = apiUrl.protocol === 'https:'
-
-            const postData = JSON.stringify({
-                Phone: phone,
-                Body: message,
-            })
-
-            const options: any = {
-                hostname: apiUrl.hostname,
-                port: apiUrl.port || (isHttps ? 443 : 80),
-                path: apiUrl.pathname,
+            const res = await fetch(endpoint, {
                 method: 'POST',
-                headers: {
-                    'Token': this.API_KEY,
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(postData)
-                }
-            }
-
-            if (isHttps) {
-                options.rejectUnauthorized = false
-            }
-
-            return new Promise((resolve, reject) => {
-                const httpModule = isHttps
-                    ? import('https').then(m => m.default)
-                    : import('http').then(m => m.default)
-
-                httpModule.then(http => {
-                    const req = http.request(options, (res) => {
-                        let data = ''
-
-                        res.on('data', (chunk) => {
-                            data += chunk
-                        })
-
-                        res.on('end', () => {
-                            try {
-                                const result = JSON.parse(data)
-                                resolve(result)
-                            } catch {
-                                resolve({ raw: data })
-                            }
-                        })
-                    })
-
-                    req.on('error', (error) => {
-                        console.error('WhatsappService Error:', error)
-                        reject(error)
-                    })
-
-                    req.write(postData)
-                    req.end()
-                })
+                headers,
+                body: JSON.stringify(payload),
             })
 
+            const raw = await res.text()
+            let result: any
+            try {
+                result = JSON.parse(raw)
+            } catch {
+                result = { raw }
+            }
+
+            if (!res.ok) {
+                console.error(`[WhatsappService] WAHA responded ${res.status}:`, result)
+            }
+
+            return result
         } catch (error) {
-            console.error('WhatsappService Error:', error)
+            console.error('[WhatsappService] Error:', error)
             throw error
         }
     }
 
     /**
-     * Notifikasi LOTO Request baru dibuat
+     * Send notification for New LOTO Request
      */
     static async notifyNewRequest(
         requestNumber: string,
@@ -103,6 +89,7 @@ export class WhatsappService {
         creatorName: string,
         creatorPhone?: string | null
     ) {
+        // 1. Notify Creator (confirmation)
         if (creatorPhone) {
             const creatorMsg = `*LOTO REQUEST BERHASIL DIBUAT* ✅
         
@@ -116,6 +103,7 @@ Request Anda telah berhasil dibuat dan dikirim ke seksi terkait.
             await this.send(creatorPhone, creatorMsg)
         }
 
+        // 2. Notify Seksi Tujuan
         const phone = getPhoneNumber(seksiTujuan)
         if (!phone) return
 
@@ -133,7 +121,7 @@ Mohon segera diproses.
     }
 
     /**
-     * Notifikasi eksekusi LOTO (CAT.03)
+     * Send notification for Operator Execution
      */
     static async notifyExecution(data: {
         requestNumber: string,
@@ -163,15 +151,18 @@ Eksekutor: ${data.eksekutor}
 
 Ket: ${data.description}
 `
+        // 1. Notify Creator
         if (data.creatorPhone) {
             await this.send(data.creatorPhone, msg)
         }
 
+        // 2. Notify Eksekutor (Team Leader)
         const eksekutorPhone = getPhoneNumber(data.eksekutor)
         if (eksekutorPhone) {
             await this.send(eksekutorPhone, msg)
         }
 
+        // 3. Notify Seksi Har
         const seksiPhone = getPhoneNumber(data.seksi)
         if (seksiPhone) {
             await this.send(seksiPhone, msg)
@@ -179,7 +170,7 @@ Ket: ${data.description}
     }
 
     /**
-     * Notifikasi release LOTO (CAT.06)
+     * Send notification for LOTO Release
      */
     static async notifyRelease(data: {
         requestNumber: string,
@@ -203,15 +194,18 @@ Ket. Release: ${data.keteranganRelease}
 
 LOTO telah dicabut dan normalisasi selesai.
 `
+        // 1. Notify Creator
         if (data.creatorPhone) {
             await this.send(data.creatorPhone, msg)
         }
 
+        // 2. Notify Eksekutor Release (Team Leader)
         const eksekutorPhone = getPhoneNumber(data.eksekutorRelease)
         if (eksekutorPhone) {
             await this.send(eksekutorPhone, msg)
         }
 
+        // 3. Notify Seksi Har
         const seksiPhone = getPhoneNumber(data.seksiHar)
         if (seksiPhone) {
             await this.send(seksiPhone, msg)

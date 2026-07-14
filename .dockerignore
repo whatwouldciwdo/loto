@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Env files (provided at runtime, never baked into the image)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Docs & local-only assets
+*.md
+!README.md
+backups
+excel-check.txt
+*.xlsx
+
+# Test coverage & TS build info
+coverage
+*.tsbuildinfo
