@@ -75,7 +75,7 @@ export async function createLotoRequest(data: {
             lotoRequestId: lotoRequest.id,
             actorId: data.createdById,
             action: 'created',
-            newStatus: LotoStatus.DRAFT,
+            newStatus: LotoStatus.REQUEST,
             metadata: {
                 requestNumber: lotoRequest.requestNumber,
             },
