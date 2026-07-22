@@ -26,7 +26,8 @@ services:
       # WHATSAPP_API_KEY: <waha-api-key>
       # WHATSAPP_SESSION: default
     ports:
-      - "3003:3003"
+      # Access the app on host port 3003; app listens on 3000 inside the container
+      - "3003:3000"
     volumes:
       # Persist uploaded evidence images across container restarts
       - uploads_data:/app/public/uploads
