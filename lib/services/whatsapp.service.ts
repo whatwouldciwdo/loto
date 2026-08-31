@@ -10,12 +10,17 @@ import { getPhoneNumber } from '@/lib/whatsapp-config'
  *   Body:    { session, chatId: '628xxxxxxxxxx@c.us', text }
  */
 export class WhatsappService {
-    // Base URL of the WAHA server (no trailing slash)
-    private static API_URL = (process.env.WHATSAPP_API_URL || 'http://10.8.140.67:3010').replace(/\/+$/, '')
-    // WAHA API key (configured via WAHA_API_KEY on the WAHA server)
-    private static API_KEY = process.env.WHATSAPP_API_KEY || ''
-    // WAHA session name (default session: "LOTO")
-    private static SESSION = process.env.WHATSAPP_SESSION || 'LOTO'
+    private static getApiUrl() {
+        return (process.env.WHATSAPP_API_URL || 'http://10.8.140.67:3010').replace(/\/+$/, '')
+    }
+
+    private static getApiKey() {
+        return process.env.WHATSAPP_API_KEY || ''
+    }
+
+    private static getSession() {
+        return process.env.WHATSAPP_SESSION || 'LOTO'
+    }
 
     /**
      * Convert an international phone number (e.g. 628123456789) to a WAHA chatId.
@@ -36,10 +41,12 @@ export class WhatsappService {
         }
 
         const chatId = this.toChatId(to)
-        const endpoint = `${this.API_URL}/api/sendText`
+        const endpoint = `${this.getApiUrl()}/api/sendText`
+        const apiKey = this.getApiKey()
+        const session = this.getSession()
 
         const payload = {
-            session: this.SESSION,
+            session,
             chatId,
             text: message,
         }
@@ -48,8 +55,8 @@ export class WhatsappService {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         }
-        if (this.API_KEY) {
-            headers['X-Api-Key'] = this.API_KEY
+        if (apiKey) {
+            headers['X-Api-Key'] = apiKey
         }
 
         try {
