@@ -2,9 +2,9 @@
 // Map Seksi/Department ke Nomor Telepon
 // Format: Internasional tanpa + (contoh: 628123456789)
 export const SEKSI_PHONE_NUMBERS: Record<string, string> = {
-    'OPS A (IHWANSYAH WIBOWO)': '628571050693',
-    'OPS B (UNTUNG RIYADI)': '628777170810',
-    'OPS C (SULISTIYONO)': '628787158107',
+    'OPS A (IHWANSYAH WIBOWO)': '6285710506932',
+    'OPS B (UNTUNG RIYADI)': '6287771708109',
+    'OPS C (SULISTIYONO)': '6287871581077',
     'OPS D (YAYAN SURYANA)': '6287788516425',
 
     'HAR-MECH (JUWAN OKTAVIANSA)': '6281380712262',
