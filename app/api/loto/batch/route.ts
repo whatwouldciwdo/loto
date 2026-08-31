@@ -102,21 +102,8 @@ export async function POST(request: NextRequest) {
                     workorderNumber: form.workorderNumber,
                     seksi: form.seksi,
                     description: form.description,
+                    workType: form.workType || 'Corrective Maintenance',
                 })
-
-                // Send WhatsApp notification for each specific WO and Seksi
-                try {
-                    await WhatsappService.notifyNewRequest(
-                        loto.requestNumber,
-                        form.description || '-',
-                        item.type || LotoType.TAGGING,
-                        form.seksi || '-',
-                        creator?.name || session.username,
-                        creator?.phoneNumber
-                    )
-                } catch (waErr) {
-                    console.error(`[Batch LOTO] WA notification failed for ${loto.requestNumber}:`, waErr)
-                }
             } catch (itemErr: any) {
                 console.error(`[Batch LOTO] Error creating row ${i + 1}:`, itemErr)
                 failedResults.push({
@@ -124,6 +111,19 @@ export async function POST(request: NextRequest) {
                     workorderNumber: form.workorderNumber,
                     error: itemErr.message || 'Gagal membuat LOTO',
                 })
+            }
+        }
+
+        // Send consolidated WhatsApp notification (Anti-spam / Anti-ban safe delivery)
+        if (createdResults.length > 0) {
+            try {
+                await WhatsappService.notifyBatchRequests({
+                    creatorName: creator?.name || session.username,
+                    creatorPhone: creator?.phoneNumber,
+                    items: createdResults,
+                })
+            } catch (batchWaErr) {
+                console.error('[Batch LOTO] Consolidated WA notification failed:', batchWaErr)
             }
         }
 
