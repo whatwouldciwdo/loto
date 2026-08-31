@@ -62,6 +62,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/test-whatsapp-prod.js ./test-whatsapp-prod.js
 
 # Entrypoint runs `prisma migrate deploy` then starts the server
 COPY --from=builder /app/docker/entrypoint.sh ./docker/entrypoint.sh
