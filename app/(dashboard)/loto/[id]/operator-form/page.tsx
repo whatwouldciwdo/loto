@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { API_ROUTES } from '@/lib/constants'
-import AssetSearchCombobox from '@/components/loto/asset-search'
 import { Badge } from '@/components/ui/badge'
 import { FileCheck, Save } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
@@ -79,28 +78,42 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
             const loto = data.data
             setLotoRequest(loto)
 
+            // Extract asset from loto.asset or loto.formData
+            const assetData = loto.asset || (loto.formData?.assetId ? {
+                id: loto.formData.assetId,
+                assetNumber: loto.formData.assetNumber || '',
+                equipmentName: loto.formData.equipmentName || '',
+                kodeAlas: loto.formData.kodeAlas || '',
+                systemOwner: loto.formData.systemOwner || '',
+                unit: loto.formData.unit || '',
+            } : null) || (loto.formData?.operatorForm?.assetId ? {
+                id: loto.formData.operatorForm.assetId,
+                assetNumber: loto.formData.operatorForm.assetNumber || '',
+                equipmentName: loto.formData.operatorForm.equipmentName || '',
+                unit: loto.formData.operatorForm.unit || '',
+            } : null)
+
+            if (assetData) {
+                setSelectedAsset(assetData)
+                setFormData(prev => ({
+                    ...prev,
+                    assetId: assetData.id
+                }))
+            }
+
             // Pre-fill form if operatorForm data exists
             const saved = loto.formData?.operatorForm
             if (saved) {
-                setFormData({
+                setFormData(prev => ({
+                    ...prev,
                     descriptionPekerjaan: saved.descriptionPekerjaan || saved.deskripsiPekerjaan || '',
-                    assetId: saved.assetId || '',
+                    assetId: saved.assetId || prev.assetId || '',
                     peralatan: saved.peralatan || '',
                     eksekusi: saved.eksekusi || '',
                     eksekutor: saved.eksekutor || '',
                     keterangan: saved.keterangan || '',
                     seksiHAR: saved.seksiHAR || '',
-                })
-
-                // Restore selected asset
-                if (saved.assetId) {
-                    setSelectedAsset({
-                        id: saved.assetId,
-                        assetNumber: saved.assetNumber || '',
-                        equipmentName: saved.equipmentName || '',
-                        unit: saved.unit || '',
-                    })
-                }
+                }))
             } else {
                 // Pre-fill description from LOTO request if no operator form data exists
                 setFormData(prev => ({
@@ -234,37 +247,42 @@ export default function OperatorFormPage({ params }: { params: { id: string } })
                         </div>
 
                         <div>
-                            <Label className="text-base font-semibold mb-3 block">
-                                Nama Asset / Equipment <span className="text-red-500">*</span>
+                            <Label className="text-base font-semibold mb-2 block">
+                                Nama Asset / Equipment
                             </Label>
-                            <AssetSearchCombobox
-                                unit="CLG"
-                                onSelect={setSelectedAsset}
-                                selectedAsset={selectedAsset}
-                            />
-                            <p className="text-xs text-gray-500 mt-2">Cari dan pilih asset dari database</p>
-
-                            {selectedAsset && (
-                                <div className="mt-4 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center">
-                                            <span className="text-white text-xs font-bold">✓</span>
+                            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 cursor-not-allowed">
+                                {selectedAsset ? (
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <p className="font-bold text-gray-800 text-lg">{selectedAsset.equipmentName}</p>
+                                            <Badge variant="outline" className="bg-gray-200 text-gray-600 border-gray-300">
+                                                Locked
+                                            </Badge>
                                         </div>
-                                        <p className="text-sm font-semibold text-gray-600">Asset Terpilih</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3 text-sm text-gray-600">
+                                            <div>
+                                                <span className="text-xs text-gray-400 block uppercase font-medium">Asset Number</span>
+                                                <span className="font-semibold text-gray-700">{selectedAsset.assetNumber}</span>
+                                            </div>
+                                            {selectedAsset.kodeAlas && (
+                                                <div>
+                                                    <span className="text-xs text-gray-400 block uppercase font-medium">Kode Alas</span>
+                                                    <span className="font-semibold text-gray-700">{selectedAsset.kodeAlas}</span>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="text-xs text-gray-400 block uppercase font-medium">Unit</span>
+                                                <span className="font-semibold text-gray-700">{selectedAsset.unit || 'CLG'}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h4 className="text-lg font-bold text-dark mb-2">{selectedAsset.equipmentName}</h4>
-                                    <div className="grid grid-cols-2 gap-2 text-sm">
-                                        <div>
-                                            <p className="text-gray-600">Asset Number:</p>
-                                            <p className="text-dark font-semibold">{selectedAsset.assetNumber}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-600">Unit:</p>
-                                            <p className="text-dark font-semibold">{selectedAsset.unit}</p>
-                                        </div>
+                                ) : (
+                                    <div className="text-gray-500 text-sm">
+                                        {lotoRequest?.formData?.equipmentName || lotoRequest?.formData?.assetNumber || 'Tidak ada asset yang dipilih pada Request LOTO'}
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Asset ditentukan pada form Request LOTO dan tidak dapat diedit oleh Operator</p>
                         </div>
 
                         <div>

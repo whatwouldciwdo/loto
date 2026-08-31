@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FileEdit, Shield } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import AssetSearchCombobox from '@/components/loto/asset-search'
 
 // TBA: Will be announced later - placeholders for now
 const WORK_TYPES = [
@@ -64,10 +65,18 @@ export default function LotoRequestPage() {
         workType: '',
         seksi: '',
     })
+    const [selectedAsset, setSelectedAsset] = useState<any>(null)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
+
+        if (!selectedAsset) {
+            setError('Silakan cari dan pilih Asset / Equipment terlebih dahulu')
+            showToast('error', 'Validation Error', 'Silakan cari dan pilih Asset / Equipment terlebih dahulu')
+            return
+        }
+
         setLoading(true)
 
         try {
@@ -78,7 +87,16 @@ export default function LotoRequestPage() {
                 },
                 body: JSON.stringify({
                     type: 'TAGGING',
-                    formData,
+                    formData: {
+                        ...formData,
+                        assetId: selectedAsset.id,
+                        assetNumber: selectedAsset.assetNumber,
+                        equipmentName: selectedAsset.equipmentName,
+                        kodeAlas: selectedAsset.kodeAlas || '',
+                        location: selectedAsset.location || '',
+                        systemOwner: selectedAsset.systemOwner || '',
+                        unit: selectedAsset.unit || 'CLG',
+                    },
                 }),
             })
 
@@ -157,6 +175,18 @@ export default function LotoRequestPage() {
                                 placeholder="Enter workorder number"
                                 required
                             />
+                        </div>
+
+                        <div>
+                            <Label className="text-base font-semibold mb-2 block">
+                                Nama Asset / Equipment <span className="text-red-500">*</span>
+                            </Label>
+                            <AssetSearchCombobox
+                                unit="CLG"
+                                onSelect={setSelectedAsset}
+                                selectedAsset={selectedAsset}
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Cari dan pilih asset dari database</p>
                         </div>
 
                         <div>

@@ -36,6 +36,7 @@ export async function createLotoRequest(data: {
     type: LotoType
     createdById: string
     operatorId?: string
+    assetId?: string
     formData: any
 }) {
     const requestNumber = await generateRequestNumber()
@@ -47,9 +48,11 @@ export async function createLotoRequest(data: {
             status: LotoStatus.REQUEST,
             createdById: data.createdById,
             operatorId: data.operatorId,
+            assetId: data.assetId || data.formData?.assetId || undefined,
             formData: data.formData,
         },
         include: {
+            asset: true,
             createdBy: {
                 select: {
                     id: true,
@@ -90,6 +93,7 @@ export async function getLotoRequest(id: string) {
     return prisma.lotoRequest.findUnique({
         where: { id },
         include: {
+            asset: true,
             createdBy: {
                 select: {
                     id: true,
@@ -158,6 +162,7 @@ export async function getLotoRequests(filters?: {
     return prisma.lotoRequest.findMany({
         where: filters,
         include: {
+            asset: true,
             createdBy: {
                 select: {
                     id: true,

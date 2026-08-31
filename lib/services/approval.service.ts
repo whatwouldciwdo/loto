@@ -60,7 +60,7 @@ export class ApprovalService {
             data: {
                 operatorId: userId,
                 status: newStatus,
-                assetId: formData.asset_id || undefined,
+                assetId: formData.assetId || formData.asset_id || loto.assetId || undefined,
                 formData: {
                     ...(loto.formData as any),
                     operatorForm: formData,

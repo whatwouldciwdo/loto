@@ -28,6 +28,12 @@ interface LotoRequest {
         name: string
         username: string
     }
+    asset?: {
+        assetNumber: string
+        equipmentName: string
+        location?: string
+        unit?: string
+    }
     createdAt: string
     updatedAt: string
 }
@@ -246,6 +252,17 @@ export default function LotoDetailPage({ params }: { params: { id: string } }) {
                             <div>
                                 <p className="text-xs text-gray-500">Workorder Number</p>
                                 <p className="font-semibold text-dark mt-0.5">{loto.formData.workorderNumber || '-'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500">Nama Asset / Equipment</p>
+                                <p className="font-semibold text-dark mt-0.5">
+                                    {loto.asset?.equipmentName || loto.formData.equipmentName || '-'}
+                                    {(loto.asset?.assetNumber || loto.formData.assetNumber) && (
+                                        <span className="text-xs text-gray-500 font-normal ml-2">
+                                            ({loto.asset?.assetNumber || loto.formData.assetNumber})
+                                        </span>
+                                    )}
+                                </p>
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500">Work Type</p>
