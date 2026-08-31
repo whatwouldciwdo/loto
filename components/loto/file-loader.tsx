@@ -115,6 +115,100 @@ export default function FileLoader({ onLoadData, workTypes, seksiList }: FileLoa
         onLoadData(row, matchedAsset)
     }
 
+    const decodeHtmlEntities = (str: string): string => {
+        if (!str) return ''
+        return str
+            .replace(/&#040;/g, '(')
+            .replace(/&#041;/g, ')')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&#039;/g, "'")
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/<[^>]+>/g, '')
+            .trim()
+    }
+
+    const parseHtmlSpreadsheet = (htmlText: string): LoaderParsedData[] => {
+        const tableMatch = htmlText.match(/<table[\s\S]*?<\/table>/i)
+        if (!tableMatch) return []
+
+        const trRegex = /<tr[\s\S]*?<\/tr>/gi
+        const rows = tableMatch[0].match(trRegex) || []
+        if (rows.length < 2) return []
+
+        const cellRegex = /<(?:td|th)[^>]*>([\s\S]*?)<\/(?:td|th)>/gi
+
+        const headerRow = rows[0] || ''
+        const headers: string[] = []
+        let match
+        while ((match = cellRegex.exec(headerRow)) !== null) {
+            headers.push(decodeHtmlEntities(match[1] || ''))
+        }
+
+        const woIdx = headers.findIndex(h => {
+            const up = (h || '').toUpperCase().trim()
+            return up === 'WORK ORDER' || up === 'WO ID' || up === 'NO WO' || up === 'WO' || up === 'WORKORDER'
+        })
+
+        // Description columns: first is WO description, second is Asset description if multiple exist
+        const descIndices = headers.map((h, i) => (h || '').toUpperCase().trim() === 'DESCRIPTION' ? i : -1).filter(i => i !== -1)
+        const woDescIdx = descIndices.length > 0 ? descIndices[0] : headers.findIndex(h => (h || '').toUpperCase().includes('DESC') && !(h || '').toUpperCase().includes('ASSET'))
+
+        const workTypeIdx = headers.findIndex(h => {
+            const up = (h || '').toUpperCase().trim()
+            return up === 'WORK TYPE' || up === 'WORK_TYPE' || up === 'TIPE' || up === 'JENIS PEKERJAAN'
+        })
+
+        const assetIdx = headers.findIndex(h => {
+            const up = (h || '').toUpperCase().trim()
+            return up === 'ASSET' || up === 'ASSET ID' || up === 'NO ASSET' || up === 'KODE ASSET'
+        })
+
+        const assetDescIdx = descIndices.length > 1 ? descIndices[1] : headers.findIndex(h => {
+            const up = (h || '').toUpperCase().trim()
+            return up.includes('ASSET DESC') || up.includes('EQUIPMENT')
+        })
+
+        const seksiIdx = headers.findIndex(h => {
+            const up = (h || '').toUpperCase().trim()
+            return up === 'SEKSI' || up === 'SECTION' || up === 'BIDANG' || up === 'DEPARTEMEN'
+        })
+
+        const result: LoaderParsedData[] = []
+        for (let r = 1; r < rows.length; r++) {
+            const currentRow = rows[r] || ''
+            const cells: string[] = []
+            const rowCellRegex = /<(?:td|th)[^>]*>([\s\S]*?)<\/(?:td|th)>/gi
+            while ((match = rowCellRegex.exec(currentRow)) !== null) {
+                cells.push(decodeHtmlEntities(match[1] || ''))
+            }
+
+            if (cells.length > 0) {
+                const wo = woIdx !== -1 ? cells[woIdx] || '' : ''
+                const desc = woDescIdx !== -1 ? cells[woDescIdx] || '' : ''
+                const wt = workTypeIdx !== -1 ? cells[workTypeIdx] || '' : ''
+                const asset = assetIdx !== -1 ? cells[assetIdx] || '' : ''
+                const assetDesc = assetDescIdx !== -1 ? cells[assetDescIdx] || '' : ''
+                const seksi = seksiIdx !== -1 ? cells[seksiIdx] || '' : ''
+
+                if (wo || desc || asset) {
+                    result.push({
+                        workorderNumber: wo,
+                        description: desc,
+                        workType: mapWorkType(wt),
+                        seksi: mapSeksi(seksi),
+                        assetNumber: asset,
+                        assetDescription: assetDesc,
+                    })
+                }
+            }
+        }
+
+        return result
+    }
+
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (!files || files.length === 0) return
@@ -133,63 +227,66 @@ export default function FileLoader({ onLoadData, workTypes, seksiList }: FileLoa
         setFileName(file.name)
 
         try {
-            const dataBuffer = await file.arrayBuffer()
-            const workbook = XLSX.read(dataBuffer, { type: 'array' })
-            const firstSheetName = workbook.SheetNames[0]
-            const sheet = workbook.Sheets[firstSheetName]
-            const rawRows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+            let parsed: LoaderParsedData[] = []
 
-            if (rawRows.length === 0) {
-                showToast('error', 'File Kosong', 'Tidak ditemukan data di dalam file yang diupload')
-                setLoading(false)
-                return
+            // Check if file is an HTML spreadsheet export (e.g. Maximo / SAP .xls)
+            const textSample = await file.text()
+            if (textSample.includes('<html') || textSample.includes('<table')) {
+                parsed = parseHtmlSpreadsheet(textSample)
+            } else {
+                // Standard Binary Excel (.xlsx, .xls) or CSV
+                const dataBuffer = await file.arrayBuffer()
+                const workbook = XLSX.read(dataBuffer, { type: 'array' })
+                const firstSheetName = workbook.SheetNames[0]
+                const sheet = workbook.Sheets[firstSheetName]
+                const rawRows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+
+                parsed = rawRows.map((r) => {
+                    const keys = Object.keys(r)
+
+                    const findKey = (candidates: string[]) => {
+                        return keys.find(k => {
+                            const clean = k.trim().toUpperCase()
+                            return candidates.some(c => clean === c || clean.includes(c))
+                        })
+                    }
+
+                    // Keys detection
+                    const woKey = findKey(['WO ID', 'WO_ID', 'WORKORDER', 'WORK ORDER', 'NO WO', 'WO NUMBER', 'WO'])
+                    const descKey = keys.find(k => {
+                        const clean = k.trim().toUpperCase()
+                        return (clean === 'DESCRIPTION' || clean === 'DESKRIPSI' || clean === 'WORK DESCRIPTION') &&
+                            !clean.includes('ASSET') && !clean.includes('KODE')
+                    })
+                    const workTypeKey = findKey(['WORK TYPE', 'WORK_TYPE', 'WORKTYPE', 'JENIS PEKERJAAN', 'TIPE PEKERJAAN', 'TIPE'])
+                    const assetKey = keys.find(k => {
+                        const clean = k.trim().toUpperCase()
+                        return (clean === 'ASSET' || clean === 'ASSET ID' || clean === 'NO ASSET' || clean === 'KODE ASSET') &&
+                            !clean.includes('DESCRIPTION') && !clean.includes('DESC')
+                    })
+                    const assetDescKey = findKey(['ASSET DESCRIPTION', 'ASSET_DESCRIPTION', 'ASSET DESC', 'EQUIPMENT NAME', 'EQUIPMENT', 'NAMA ASSET'])
+                    const seksiKey = findKey(['SEKSI', 'SECTION', 'BIDANG', 'DEPARTEMEN', 'DISIPLIN'])
+
+                    const rawWo = woKey ? decodeHtmlEntities(String(r[woKey])) : ''
+                    const rawDesc = descKey ? decodeHtmlEntities(String(r[descKey])) : ''
+                    const rawWorkType = workTypeKey ? decodeHtmlEntities(String(r[workTypeKey])) : ''
+                    const rawAsset = assetKey ? decodeHtmlEntities(String(r[assetKey])) : ''
+                    const rawAssetDesc = assetDescKey ? decodeHtmlEntities(String(r[assetDescKey])) : ''
+                    const rawSeksi = seksiKey ? decodeHtmlEntities(String(r[seksiKey])) : ''
+
+                    return {
+                        workorderNumber: rawWo,
+                        description: rawDesc,
+                        workType: mapWorkType(rawWorkType),
+                        seksi: mapSeksi(rawSeksi),
+                        assetNumber: rawAsset,
+                        assetDescription: rawAssetDesc,
+                    }
+                }).filter(item => item.workorderNumber || item.description || item.assetNumber)
             }
 
-            const parsed: LoaderParsedData[] = rawRows.map((r) => {
-                const keys = Object.keys(r)
-
-                const findKey = (candidates: string[]) => {
-                    return keys.find(k => {
-                        const clean = k.trim().toUpperCase()
-                        return candidates.some(c => clean === c || clean.includes(c))
-                    })
-                }
-
-                // Keys detection
-                const woKey = findKey(['WO ID', 'WO_ID', 'WORKORDER', 'WORK ORDER', 'NO WO', 'WO NUMBER', 'WO'])
-                const descKey = keys.find(k => {
-                    const clean = k.trim().toUpperCase()
-                    return (clean === 'DESCRIPTION' || clean === 'DESKRIPSI' || clean === 'WORK DESCRIPTION') &&
-                        !clean.includes('ASSET') && !clean.includes('KODE')
-                })
-                const workTypeKey = findKey(['WORK TYPE', 'WORK_TYPE', 'WORKTYPE', 'JENIS PEKERJAAN', 'TIPE PEKERJAAN', 'TIPE'])
-                const assetKey = keys.find(k => {
-                    const clean = k.trim().toUpperCase()
-                    return (clean === 'ASSET' || clean === 'ASSET ID' || clean === 'NO ASSET' || clean === 'KODE ASSET') &&
-                        !clean.includes('DESCRIPTION') && !clean.includes('DESC')
-                })
-                const assetDescKey = findKey(['ASSET DESCRIPTION', 'ASSET_DESCRIPTION', 'ASSET DESC', 'EQUIPMENT NAME', 'EQUIPMENT', 'NAMA ASSET'])
-                const seksiKey = findKey(['SEKSI', 'SECTION', 'BIDANG', 'DEPARTEMEN', 'DISIPLIN'])
-
-                const rawWo = woKey ? String(r[woKey]).trim() : ''
-                const rawDesc = descKey ? String(r[descKey]).trim() : ''
-                const rawWorkType = workTypeKey ? String(r[workTypeKey]).trim() : ''
-                const rawAsset = assetKey ? String(r[assetKey]).trim() : ''
-                const rawAssetDesc = assetDescKey ? String(r[assetDescKey]).trim() : ''
-                const rawSeksi = seksiKey ? String(r[seksiKey]).trim() : ''
-
-                return {
-                    workorderNumber: rawWo,
-                    description: rawDesc,
-                    workType: mapWorkType(rawWorkType),
-                    seksi: mapSeksi(rawSeksi),
-                    assetNumber: rawAsset,
-                    assetDescription: rawAssetDesc,
-                }
-            }).filter(item => item.workorderNumber || item.description || item.assetNumber)
-
             if (parsed.length === 0) {
-                showToast('error', 'Data Tidak Sesuai', 'Format kolom file tidak cocok dengan template loader (WO ID, DESCRIPTION, ASSET, dll.)')
+                showToast('error', 'Data Tidak Sesuai', 'Format kolom file tidak cocok dengan template loader (WO ID / Work Order, DESCRIPTION, ASSET, dll.)')
                 setLoading(false)
                 return
             }
