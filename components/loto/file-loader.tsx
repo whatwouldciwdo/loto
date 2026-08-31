@@ -247,9 +247,13 @@ export default function FileLoader({ onLoadData, workTypes, seksiList }: FileLoa
             let parsed: LoaderParsedData[] = []
 
             const textSample = await file.text()
-            if (textSample.includes('<html') || textSample.includes('<table')) {
+            const lowerText = textSample.toLowerCase()
+            if (lowerText.includes('<html') || lowerText.includes('<table') || lowerText.includes('<tr')) {
                 parsed = parseHtmlSpreadsheet(textSample)
-            } else {
+            }
+            
+            // If not HTML or HTML parse returned empty, try standard Binary XLSX / CSV
+            if (parsed.length === 0) {
                 const dataBuffer = await file.arrayBuffer()
                 const workbook = XLSX.read(dataBuffer, { type: 'array' })
                 const firstSheetName = workbook.SheetNames[0]
