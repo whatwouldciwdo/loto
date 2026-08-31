@@ -1,33 +1,24 @@
-# Production deployment for Ubuntu server.
+# Production / Standalone deployment for Ubuntu server.
 #
-# PostgreSQL and WAHA run on their own servers (external), so this compose
-# only builds and runs the Next.js app. All secrets come from a .env file
-# placed next to this compose file on the server.
+# PostgreSQL (10.8.140.69:5432) and WAHA (10.8.140.67:3010) run externally.
+# This compose file builds and runs the Next.js application on port 3009.
 #
-# Usage on the Ubuntu server:
-#   git pull
+# Usage:
 #   docker compose -f docker-compose.prod.yml up -d --build
 #
 services:
-  web:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
     image: loto-app:latest
-    container_name: loto_web
+    container_name: loto_app
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      NODE_ENV: production
-      # These can also be set in .env; listed here for visibility.
-      # DATABASE_URL: postgresql://USER:PASSWORD@10.8.140.69:5432/loto_db
-      # WHATSAPP_API_URL: http://10.8.140.67:8310
-      # WHATSAPP_API_KEY: <waha-api-key>
-      # WHATSAPP_SESSION: default
     ports:
-      # Access the app on host port 3003; app listens on 3000 inside the container
-      - "3003:3000"
+      # Access the app on host port 3009; app listens on 3000 inside the container
+      - "3009:3000"
     volumes:
       # Persist uploaded evidence images across container restarts
       - uploads_data:/app/public/uploads

@@ -86,7 +86,7 @@ JWT_SECRET=ganti_dengan_random_string_minimal_32_karakter
 
 NODE_ENV=production
 # URL publik aplikasi (alamat server yang diakses browser)
-NEXT_PUBLIC_API_URL=http://<IP_SERVER_UBUNTU>:3000
+NEXT_PUBLIC_API_URL=http://<IP_SERVER_UBUNTU>:3009
 
 # WhatsApp (WAHA)
 WHATSAPP_API_URL=http://10.8.140.67:3010
@@ -103,7 +103,7 @@ Tips membuat JWT_SECRET acak:
 openssl rand -base64 48
 ```
 
-> Ganti `<IP_SERVER_UBUNTU>` dengan IP server ini (mis. `http://10.8.140.xx:3000`).
+> Ganti `<IP_SERVER_UBUNTU>` dengan IP server ini (mis. `http://10.8.140.xx:3009`).
 
 ---
 
@@ -118,16 +118,16 @@ Apa yang terjadi saat start:
 1. Docker build image aplikasi (Next.js standalone).
 2. Container start → `docker/entrypoint.sh` menjalankan `prisma migrate deploy`
    (menerapkan migrasi yang belum ada ke `loto_db`).
-3. Server Next.js jalan di port **3000**.
+3. Server Next.js jalan dan diakses via host port **3009**.
 
 Cek status & log:
 
 ```bash
 docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f web
+docker compose -f docker-compose.prod.yml logs -f app
 ```
 
-Akses aplikasi: `http://<IP_SERVER_UBUNTU>:3000`
+Akses aplikasi: `http://<IP_SERVER_UBUNTU>:3009`
 
 Login awal (dari hasil seed):
 - Username: `admin` — Password: `password123`
@@ -154,10 +154,10 @@ Data uploads tetap aman karena disimpan di Docker volume `uploads_data`.
 
 ```bash
 # Lihat log real-time
-docker compose -f docker-compose.prod.yml logs -f web
+docker compose -f docker-compose.prod.yml logs -f app
 
 # Restart aplikasi
-docker compose -f docker-compose.prod.yml restart web
+docker compose -f docker-compose.prod.yml restart app
 
 # Stop
 docker compose -f docker-compose.prod.yml down
@@ -166,20 +166,20 @@ docker compose -f docker-compose.prod.yml down
 docker compose -f docker-compose.prod.yml down -v
 
 # Masuk shell container
-docker exec -it loto_web sh
+docker exec -it loto_app sh
 
 # Jalankan migrasi manual di dalam container (biasanya tidak perlu)
-docker exec -it loto_web node node_modules/prisma/build/index.js migrate deploy
+docker exec -it loto_app node node_modules/prisma/build/index.js migrate deploy
 ```
 
 ---
 
-## 6. Buka firewall untuk port 3000 (jika UFW aktif)
+## 6. Buka firewall untuk port 3009 (jika UFW aktif)
 
 ```bash
 sudo ufw status
 # jika active, izinkan port app
-sudo ufw allow 3000/tcp
+sudo ufw allow 3009/tcp
 sudo ufw reload
 ```
 
