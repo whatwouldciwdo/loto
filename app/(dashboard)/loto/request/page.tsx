@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FileEdit, Shield } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import AssetSearchCombobox from '@/components/loto/asset-search'
+import FileLoader, { LoaderParsedData } from '@/components/loto/file-loader'
 
 // TBA: Will be announced later - placeholders for now
 const WORK_TYPES = [
@@ -66,6 +67,27 @@ export default function LotoRequestPage() {
         seksi: '',
     })
     const [selectedAsset, setSelectedAsset] = useState<any>(null)
+
+    const handleLoaderData = (parsed: LoaderParsedData, matchedAsset: any | null) => {
+        setFormData(prev => ({
+            ...prev,
+            workorderNumber: parsed.workorderNumber || prev.workorderNumber,
+            description: parsed.description || prev.description,
+            workType: parsed.workType || prev.workType,
+            seksi: parsed.seksi || prev.seksi,
+        }))
+
+        if (matchedAsset) {
+            setSelectedAsset(matchedAsset)
+        } else if (parsed.assetNumber || parsed.assetDescription) {
+            setSelectedAsset({
+                id: '',
+                assetNumber: parsed.assetNumber || '',
+                equipmentName: parsed.assetDescription || parsed.assetNumber || '',
+                unit: 'CLG',
+            })
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -141,6 +163,12 @@ export default function LotoRequestPage() {
                         <p className="text-red-600 text-sm">{error}</p>
                     </div>
                 )}
+
+                <FileLoader
+                    onLoadData={handleLoaderData}
+                    workTypes={WORK_TYPES}
+                    seksiList={SEKSI_LIST}
+                />
 
                 <Card className="mb-6 border-2 border-gray-200 animate-fade-in-up">
                     <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
