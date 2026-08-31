@@ -1,4 +1,4 @@
-import { getPhoneNumber } from '@/lib/whatsapp-config'
+import { getPhoneNumber, normalizePhoneNumber } from '@/lib/whatsapp-config'
 
 /**
  * WhatsApp integration via WAHA (WhatsApp HTTP API)
@@ -26,7 +26,7 @@ export class WhatsappService {
      * Convert an international phone number (e.g. 628123456789) to a WAHA chatId.
      */
     private static toChatId(phone: string): string {
-        const digits = phone.replace(/[^0-9]/g, '')
+        const digits = normalizePhoneNumber(phone)
         return `${digits}@c.us`
     }
 
