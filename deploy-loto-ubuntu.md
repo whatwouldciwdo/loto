@@ -6,7 +6,7 @@ Panduan ini untuk menjalankan aplikasi LOTO di server Ubuntu dengan alur:
 Arsitektur:
 - **Aplikasi (Next.js)** → jalan di container Docker pada server Ubuntu ini.
 - **PostgreSQL** → server terpisah `10.8.140.69:5432` (database `loto_db`, sudah dimigrasi).
-- **WAHA (WhatsApp)** → server terpisah `http://10.8.140.67:8310`.
+- **WAHA (WhatsApp)** → server terpisah `http://10.8.140.67:3010`.
 
 Container hanya membangun & menjalankan aplikasi web. Database dan WAHA
 diakses sebagai layanan eksternal lewat `.env`.
@@ -89,9 +89,9 @@ NODE_ENV=production
 NEXT_PUBLIC_API_URL=http://<IP_SERVER_UBUNTU>:3000
 
 # WhatsApp (WAHA)
-WHATSAPP_API_URL=http://10.8.140.67:8310
+WHATSAPP_API_URL=http://10.8.140.67:3010
 WHATSAPP_API_KEY=
-WHATSAPP_SESSION=default
+WHATSAPP_SESSION=LOTO
 
 # Opsional untuk skrip tes
 WHATSAPP_TEST_PHONE=6287814111808
@@ -215,7 +215,7 @@ node test-whatsapp.js
   server Ubuntu ini. Entrypoint tetap menjalankan app meski migrasi gagal,
   tapi aplikasi bisa error saat query.
 - **WhatsApp tidak terkirim**: cek `WHATSAPP_API_URL`, session WAHA aktif
-  (scan QR di http://10.8.140.67:8310/dashboard/), dan `WHATSAPP_SESSION` benar.
+  (scan QR di http://10.8.140.67:3010/dashboard/), dan `WHATSAPP_SESSION` benar.
 - **Port 3000 tidak bisa diakses dari luar**: cek UFW (langkah 6) dan firewall
   jaringan. Pastikan `HOSTNAME=0.0.0.0` (sudah di-set di Dockerfile).
 - **Perubahan kode tidak muncul**: pastikan pakai flag `--build` saat

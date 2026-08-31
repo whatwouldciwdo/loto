@@ -2,7 +2,7 @@ import { getPhoneNumber } from '@/lib/whatsapp-config'
 
 /**
  * WhatsApp integration via WAHA (WhatsApp HTTP API)
- * Dashboard: http://10.8.140.67:8310/dashboard/
+ * Dashboard: http://10.8.140.67:3010/dashboard/
  *
  * WAHA send-text contract:
  *   POST {WAHA_API_URL}/api/sendText
@@ -11,11 +11,11 @@ import { getPhoneNumber } from '@/lib/whatsapp-config'
  */
 export class WhatsappService {
     // Base URL of the WAHA server (no trailing slash)
-    private static API_URL = (process.env.WHATSAPP_API_URL || 'http://10.8.140.67:8310').replace(/\/+$/, '')
+    private static API_URL = (process.env.WHATSAPP_API_URL || 'http://10.8.140.67:3010').replace(/\/+$/, '')
     // WAHA API key (configured via WAHA_API_KEY on the WAHA server)
     private static API_KEY = process.env.WHATSAPP_API_KEY || ''
-    // WAHA session name (default session is usually "default")
-    private static SESSION = process.env.WHATSAPP_SESSION || 'default'
+    // WAHA session name (default session: "LOTO")
+    private static SESSION = process.env.WHATSAPP_SESSION || 'LOTO'
 
     /**
      * Convert an international phone number (e.g. 628123456789) to a WAHA chatId.
