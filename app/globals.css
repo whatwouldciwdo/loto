@@ -57,9 +57,54 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
   }
+}
+
+/* ========================================================
+   MODERN SLEEK SCROLLBAR (Chrome, Edge, Safari, Firefox)
+   ======================================================== */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 165, 0.35);
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.25s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B9FF66;
+  box-shadow: 0 0 10px rgba(185, 255, 102, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 150, 165, 0.35) transparent;
+}
+
+/* Hide scrollbar when desired */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Toast Animation */
@@ -68,14 +113,15 @@
     transform: translateX(100%);
     opacity: 0;
   }
-
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
-/* ===== Modern UI Animations ===== */
+/* ========================================================
+   MODERN UI ANIMATIONS & EFFECTS
+   ======================================================== */
 
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -85,7 +131,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(22px);
   }
   to {
     opacity: 1;
@@ -96,7 +142,7 @@
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-22px);
   }
   to {
     opacity: 1;
@@ -129,7 +175,7 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.94);
   }
   to {
     opacity: 1;
@@ -137,20 +183,9 @@
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes shimmer {
@@ -159,31 +194,37 @@
 }
 
 @keyframes pulseNeon {
-  0%, 100% { box-shadow: 0 0 8px rgba(185, 255, 102, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(185, 255, 102, 0.6); }
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(185, 255, 102, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(185, 255, 102, 0.65);
+  }
 }
 
-/* Animation utility classes */
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Modern Animation Utility Classes */
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out both;
+  animation: fadeIn 0.4s ease-out both;
 }
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out both;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animate-fade-in-down {
-  animation: fadeInDown 0.6s ease-out both;
+  animation: fadeInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animate-fade-in-left {
-  animation: fadeInLeft 0.6s ease-out both;
+  animation: fadeInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animate-fade-in-right {
-  animation: fadeInRight 0.6s ease-out both;
+  animation: fadeInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animate-scale-in {
-  animation: scaleIn 0.5s ease-out both;
-}
-.animate-slide-in-left {
-  animation: slideInLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: scaleIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animate-float {
   animation: float 4s ease-in-out infinite;
@@ -194,17 +235,59 @@
   animation: shimmer 1.5s infinite;
 }
 .animate-pulse-neon {
-  animation: pulseNeon 2s ease-in-out infinite;
+  animation: pulseNeon 2.5s ease-in-out infinite;
 }
 
-/* Stagger delay helpers */
+/* Stagger Delay Helpers */
 .animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-150 { animation-delay: 150ms; }
 .animate-delay-200 { animation-delay: 200ms; }
 .animate-delay-300 { animation-delay: 300ms; }
 .animate-delay-400 { animation-delay: 400ms; }
 .animate-delay-500 { animation-delay: 500ms; }
 .animate-delay-600 { animation-delay: 600ms; }
-.animate-delay-700 { animation-delay: 700ms; }
+
+/* ========================================================
+   MODERN CARDS, GLASSMORPHISM & HOVER ELEVATIONS
+   ======================================================== */
+
+.hover-lift {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 16px -2px rgba(185, 255, 102, 0.25);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.glass-dark {
+  background: rgba(25, 26, 35, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(185, 255, 102, 0.18);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+}
+
+.neon-glow {
+  box-shadow: 0 0 16px rgba(185, 255, 102, 0.45);
+}
+
+.neon-glow-lg {
+  box-shadow: 0 0 28px rgba(185, 255, 102, 0.6);
+}
+
+/* Smooth table row highlight */
+table tbody tr {
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
@@ -212,5 +295,6 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
+import ScrollEnhancements from "@/components/ui/scroll-enhancements";
 
 export const metadata: Metadata = {
     title: "Energy Verification & Isolation",
@@ -16,6 +17,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="antialiased" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                <ScrollEnhancements />
                 <ToastProvider>
                     <ConfirmDialogProvider>
                         {children}
