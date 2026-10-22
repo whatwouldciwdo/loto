@@ -1,5 +1,6 @@
+import prisma from '@/lib/db/prisma'
 
-// Map Seksi/Department ke Nomor Telepon
+// Map Seksi/Department ke Nomor Telepon (Fallback jika database belum memiliki data)
 // Format: Internasional tanpa + (contoh: 628123456789)
 export const SEKSI_PHONE_NUMBERS: Record<string, string> = {
     'OPS A (IHWANSYAH WIBOWO)': '6285710506932',
@@ -32,8 +33,60 @@ export const normalizePhoneNumber = (phone: string): string => {
     return digits
 }
 
+/**
+ * Synchronous getPhoneNumber (fallback to memory)
+ */
 export const getPhoneNumber = (name: string): string | null => {
     if (!name) return null
     const raw = SEKSI_PHONE_NUMBERS[name] || EKSEKUTOR_PHONE_NUMBERS[name] || null
     return raw ? normalizePhoneNumber(raw) : null
+}
+
+/**
+ * Asynchronous getPhoneNumber looking up from Database first, with fallback to hardcoded
+ */
+export const getPhoneNumberAsync = async (name: string): Promise<string | null> => {
+    if (!name) return null
+    try {
+        const contact = await prisma.whatsappContact.findFirst({
+            where: {
+                isActive: true,
+                OR: [
+                    { name: { equals: name, mode: 'insensitive' } },
+                    { department: { equals: name, mode: 'insensitive' } },
+                    { name: { contains: name, mode: 'insensitive' } },
+                ],
+            },
+        })
+        if (contact && contact.phone) {
+            return normalizePhoneNumber(contact.phone)
+        }
+    } catch (err) {
+        console.error('[whatsapp-config] Failed to get contact from DB, fallbacking:', err)
+    }
+
+    return getPhoneNumber(name)
+}
+
+/**
+ * Get all active K3 phone numbers from database
+ */
+export const getK3PhoneNumbers = async (): Promise<string[]> => {
+    try {
+        const k3Contacts = await prisma.whatsappContact.findMany({
+            where: {
+                isActive: true,
+                group: 'K3',
+            },
+            select: {
+                phone: true,
+            },
+        })
+        return k3Contacts
+            .map(c => normalizePhoneNumber(c.phone))
+            .filter(Boolean)
+    } catch (err) {
+        console.error('[whatsapp-config] Failed to get K3 contacts from DB:', err)
+        return []
+    }
 }

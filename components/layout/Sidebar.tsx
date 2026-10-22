@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Home, FileEdit, ClipboardList, Users, LogOut, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { Home, FileEdit, ClipboardList, Users, LogOut, ChevronLeft, ChevronRight, Menu, X, Wrench, Phone } from 'lucide-react'
 
 interface SidebarProps {
     session: any
@@ -125,6 +125,34 @@ export default function Sidebar({ session }: SidebarProps) {
                             {!collapsed && <span className="font-medium">{label}</span>}
                         </Link>
                     ))}
+
+                    {(session?.role === 'ADMIN' || session?.role === 'OPERATOR') && (
+                        <>
+                            <Link
+                                href="/admin/assets"
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive('/admin/assets')
+                                    ? 'bg-neon text-dark font-semibold'
+                                    : 'hover:bg-neon hover:text-dark hover:translate-x-1'
+                                    }`}
+                                title="Data Asset"
+                            >
+                                <Wrench className="w-5 h-5 flex-shrink-0" />
+                                {!collapsed && <span className="font-medium">Data Asset</span>}
+                            </Link>
+
+                            <Link
+                                href="/admin/contacts"
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive('/admin/contacts')
+                                    ? 'bg-neon text-dark font-semibold'
+                                    : 'hover:bg-neon hover:text-dark hover:translate-x-1'
+                                    }`}
+                                title="Kontak WhatsApp"
+                            >
+                                <Phone className="w-5 h-5 flex-shrink-0" />
+                                {!collapsed && <span className="font-medium">Kontak WhatsApp</span>}
+                            </Link>
+                        </>
+                    )}
 
                     {session?.role === 'ADMIN' && (
                         <Link

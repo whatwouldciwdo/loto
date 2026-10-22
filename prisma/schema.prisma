@@ -208,3 +208,18 @@ model TaggingCard {
 
   @@map("tagging_cards")
 }
+
+model WhatsappContact {
+  id          String   @id @default(uuid())
+  name        String   // Nama personil / seksi, contoh: "OPS A (IHWANSYAH WIBOWO)", "HAR-MECH", "K3 TIM 1"
+  phone       String   // Nomor WA, contoh: "6285710506932"
+  group       String   // "OPERASI", "PEMELIHARAAN", "K3", "LAINNYA"
+  department  String?  // Opsional: seksi / unit terkait
+  notes       String?  // Catatan tambahan
+  isActive    Boolean  @default(true) @map("is_active")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("whatsapp_contacts")
+}

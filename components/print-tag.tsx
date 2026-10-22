@@ -3,9 +3,10 @@
 interface PrintTagProps {
     lotoNumber: string
     workDescription: string
+    equipmentName?: string
 }
 
-export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps) {
+export default function PrintTag({ lotoNumber, workDescription, equipmentName }: PrintTagProps) {
     return (
         <>
             <style jsx global>{`
@@ -64,15 +65,16 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                     fontFamily: 'Arial, Helvetica, sans-serif',
                 }}>
 
+                    {/* TOP HEADER */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '8px 8px 4px 8px',
+                        padding: '6px 8px 3px 8px',
                         gap: '6px',
                     }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '30px',
+                            height: '30px',
                             borderRadius: '4px',
                             overflow: 'hidden',
                             flexShrink: 0,
@@ -84,7 +86,7 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             <img
                                 src="/Logo_PLN.png"
                                 alt="PLN"
-                                style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+                                style={{ width: '26px', height: '26px', objectFit: 'contain' }}
                             />
                         </div>
 
@@ -93,14 +95,14 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             backgroundColor: 'white',
                             border: '1.5px solid #999',
                             borderRadius: '4px',
-                            padding: '4px 8px',
+                            padding: '3px 6px',
                             textAlign: 'center',
                         }}>
                             <div style={{
-                                fontSize: '7px',
+                                fontSize: '6.5px',
                                 fontWeight: 'bold',
                                 color: '#555',
-                                letterSpacing: '1.5px',
+                                letterSpacing: '1.2px',
                                 textTransform: 'uppercase',
                                 marginBottom: '1px',
                             }}>NOMOR LOTO</div>
@@ -113,8 +115,8 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         </div>
 
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '30px',
+                            height: '30px',
                             borderRadius: '4px',
                             backgroundColor: '#16A34A',
                             display: 'flex',
@@ -122,28 +124,30 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                             justifyContent: 'center',
                             flexShrink: 0,
                         }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M12 2v20M2 12h20" />
                             </svg>
                         </div>
                     </div>
 
+                    {/* SUB HEADER */}
                     <div style={{
-                        margin: '0 8px 6px 8px',
+                        margin: '0 8px 4px 8px',
                         backgroundColor: 'white',
                         border: '1.5px solid #999',
                         borderRadius: '4px',
-                        padding: '3px 6px',
+                        padding: '2.5px 6px',
                         textAlign: 'center',
                     }}>
                         <div style={{
-                            fontSize: '7px',
+                            fontSize: '6.5px',
                             fontWeight: 'bold',
                             color: '#333',
                             letterSpacing: '0.8px',
                         }}>PT PLN INDONESIA POWER CILEGON</div>
                     </div>
 
+                    {/* CENTER WARNING SECTION */}
                     <div style={{
                         flex: 1,
                         display: 'flex',
@@ -151,98 +155,127 @@ export default function PrintTag({ lotoNumber, workDescription }: PrintTagProps)
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '0',
-                        gap: '4px',
+                        gap: '2px',
                     }}>
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '8px',
+                            gap: '6px',
                         }}>
-                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                 <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" fill="#FBBF24" stroke="#92400E" strokeWidth="0.5" />
                                 <line x1="12" y1="9" x2="12" y2="13" stroke="#92400E" strokeWidth="2" strokeLinecap="round" />
                                 <circle cx="12" cy="16" r="1" fill="#92400E" />
                             </svg>
                             <span style={{
-                                fontSize: '32px',
+                                fontSize: '28px',
                                 fontWeight: '900',
                                 color: 'white',
                                 textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-                                letterSpacing: '3px',
+                                letterSpacing: '2.5px',
                             }}>BAHAYA</span>
                         </div>
 
                         <div style={{
-                            width: '72px',
-                            height: '72px',
+                            width: '56px',
+                            height: '56px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            margin: '4px 0',
+                            margin: '2px 0',
                         }}>
                             <img
                                 src="/warning.jpg"
                                 alt="Warning"
                                 style={{
-                                    width: '72px',
-                                    height: '72px',
+                                    width: '56px',
+                                    height: '56px',
                                     objectFit: 'contain',
                                 }}
                             />
                         </div>
 
                         <div style={{
-                            fontSize: '20px',
+                            fontSize: '18px',
                             fontWeight: '900',
                             color: 'white',
                             textAlign: 'center',
-                            lineHeight: '1.2',
+                            lineHeight: '1.15',
                             textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
-                            letterSpacing: '1.5px',
+                            letterSpacing: '1px',
                         }}>
                             DILARANG<br />DIOPERASIKAN
                         </div>
                     </div>
 
+                    {/* NAMA ASSET / EQUIPMENT BOX */}
                     <div style={{
-                        margin: '4px 8px',
+                        margin: '2px 8px 3px 8px',
                         backgroundColor: 'white',
                         border: '1.5px solid #999',
                         borderRadius: '4px',
-                        padding: '5px 8px',
+                        padding: '3px 6px',
                         textAlign: 'center',
-                        minHeight: '32px',
                     }}>
                         <div style={{
                             fontSize: '6px',
                             fontWeight: 'bold',
                             color: '#888',
-                            letterSpacing: '1px',
+                            letterSpacing: '0.8px',
                             textTransform: 'uppercase',
-                            marginBottom: '2px',
+                            marginBottom: '1px',
+                        }}>NAMA ASSET / EQUIPMENT</div>
+                        <div style={{
+                            fontSize: '8.5px',
+                            fontWeight: '800',
+                            color: '#111',
+                            lineHeight: '1.2',
+                            wordBreak: 'break-word',
+                            maxHeight: '22px',
+                            overflow: 'hidden',
+                        }}>{equipmentName || '-'}</div>
+                    </div>
+
+                    {/* DESKRIPSI PEKERJAAN BOX */}
+                    <div style={{
+                        margin: '0 8px 3px 8px',
+                        backgroundColor: 'white',
+                        border: '1.5px solid #999',
+                        borderRadius: '4px',
+                        padding: '3px 6px',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{
+                            fontSize: '6px',
+                            fontWeight: 'bold',
+                            color: '#888',
+                            letterSpacing: '0.8px',
+                            textTransform: 'uppercase',
+                            marginBottom: '1px',
                         }}>DESKRIPSI PEKERJAAN</div>
                         <div style={{
-                            fontSize: '8px',
+                            fontSize: '7.5px',
                             fontWeight: '700',
                             color: '#333',
-                            lineHeight: '1.3',
+                            lineHeight: '1.2',
                             wordBreak: 'break-word',
-                            maxHeight: '30px',
+                            maxHeight: '22px',
                             overflow: 'hidden',
                         }}>{workDescription || '-'}</div>
                     </div>
 
+                    {/* FOOTER WARNING BANNER */}
                     <div style={{
                         backgroundColor: '#FCD34D',
-                        padding: '8px 12px',
+                        padding: '6px 10px',
                         textAlign: 'center',
                     }}>
                         <div style={{
-                            fontSize: '9px',
+                            fontSize: '8.5px',
                             fontWeight: '900',
                             color: '#CC0000',
-                            lineHeight: '1.4',
+                            lineHeight: '1.3',
                             letterSpacing: '0.3px',
                         }}>
                             TANDA INI HANYA BOLEH<br />

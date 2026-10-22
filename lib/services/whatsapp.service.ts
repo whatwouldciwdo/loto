@@ -1,4 +1,4 @@
-import { getPhoneNumber, normalizePhoneNumber } from '@/lib/whatsapp-config'
+import { getPhoneNumberAsync, getK3PhoneNumbers, normalizePhoneNumber } from '@/lib/whatsapp-config'
 
 interface QueueItem {
     to: string
@@ -13,6 +13,7 @@ interface QueueItem {
  *  - Asynchronous FIFO Queue
  *  - Rate limiting & anti-ban humanized delays (3-6s random jitter)
  *  - Batch message consolidation (aggregates multiple WOs per Seksi to prevent spam burst)
+ *  - Dynamic contacts from DB with K3 broadcast support
  */
 export class WhatsappService {
     private static queue: QueueItem[] = []
@@ -173,18 +174,33 @@ export class WhatsappService {
         creatorName: string,
         creatorPhone?: string | null
     ) {
+        const sentNumbers = new Set<string>()
+
         // 1. Notify Creator (confirmation)
         if (creatorPhone) {
+            const normCreator = normalizePhoneNumber(creatorPhone)
+            sentNumbers.add(normCreator)
             const creatorMsg = `*LOTO REQUEST BERHASIL DIBUAT* ✅\n\nNo. Request: ${requestNumber}\nTipe Pekerjaan: ${workType}\nDeskripsi: ${description}\nTujuan: ${seksiTujuan}\n\nRequest Anda telah berhasil dibuat dan diteruskan ke seksi terkait.`
-            this.send(creatorPhone, creatorMsg).catch(() => {})
+            this.send(normCreator, creatorMsg).catch(() => {})
         }
 
         // 2. Notify Seksi Tujuan
-        const phone = getPhoneNumber(seksiTujuan)
-        if (!phone) return
+        const phone = await getPhoneNumberAsync(seksiTujuan)
+        if (phone && !sentNumbers.has(phone)) {
+            sentNumbers.add(phone)
+            const message = `*NEW LOTO REQUEST* 📋\n\nNo. Request: ${requestNumber}\nTipe Pekerjaan: ${workType}\nDeskripsi: ${description}\nDibuat Oleh: ${creatorName}\nTujuan: ${seksiTujuan}\n\nMohon segera diproses.`
+            this.send(phone, message).catch(() => {})
+        }
 
-        const message = `*NEW LOTO REQUEST* 📋\n\nNo. Request: ${requestNumber}\nTipe Pekerjaan: ${workType}\nDeskripsi: ${description}\nDibuat Oleh: ${creatorName}\nTujuan: ${seksiTujuan}\n\nMohon segera diproses.`
-        this.send(phone, message).catch(() => {})
+        // 3. Notify Kru K3
+        const k3Phones = await getK3PhoneNumbers()
+        const k3Message = `*[K3 INFO] NEW LOTO REQUEST* 📋\n\nNo. Request: ${requestNumber}\nTipe: ${workType}\nDeskripsi: ${description}\nDibuat Oleh: ${creatorName}\nTujuan Seksi: ${seksiTujuan}\n\nHarap dimonitor sesuai prosedur K3.`
+        for (const k3Phone of k3Phones) {
+            if (!sentNumbers.has(k3Phone)) {
+                sentNumbers.add(k3Phone)
+                this.send(k3Phone, k3Message).catch(() => {})
+            }
+        }
     }
 
     /**
@@ -205,6 +221,8 @@ export class WhatsappService {
         const { creatorName, creatorPhone, items } = data
         if (!items || items.length === 0) return
 
+        const sentNumbers = new Set<string>()
+
         // 1. Group items by Seksi
         const seksiGroups: Record<string, typeof items> = {}
         for (const it of items) {
@@ -215,8 +233,9 @@ export class WhatsappService {
 
         // 2. Send 1 consolidated message per Seksi PIC
         for (const [seksi, woList] of Object.entries(seksiGroups)) {
-            const phone = getPhoneNumber(seksi)
-            if (!phone) continue
+            const phone = await getPhoneNumberAsync(seksi)
+            if (!phone || sentNumbers.has(phone)) continue
+            sentNumbers.add(phone)
 
             let msg = `*NEW BATCH LOTO REQUEST* 📋 (${woList.length} Pekerjaan)\n\n`
             msg += `Seksi Tujuan: *${seksi}*\n`
@@ -234,11 +253,38 @@ export class WhatsappService {
 
         // 3. Send 1 consolidated confirmation to Creator
         if (creatorPhone) {
-            let creatorMsg = `*BATCH LOTO REQUEST BERHASIL DIBUAT* ✅ (${items.length} Tiket)\n\n`
-            creatorMsg += `Total: *${items.length} Pekerjaan*\n`
-            creatorMsg += `Waktu: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB\n\n`
-            creatorMsg += `Seluruh request telah diteruskan ke masing-masing seksi terkait.`
-            this.send(creatorPhone, creatorMsg).catch(() => {})
+            const normCreator = normalizePhoneNumber(creatorPhone)
+            if (!sentNumbers.has(normCreator)) {
+                sentNumbers.add(normCreator)
+                let creatorMsg = `*BATCH LOTO REQUEST BERHASIL DIBUAT* ✅ (${items.length} Tiket)\n\n`
+                creatorMsg += `Total: *${items.length} Pekerjaan*\n`
+                creatorMsg += `Waktu: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB\n\n`
+                creatorMsg += `Seluruh request telah diteruskan ke masing-masing seksi terkait.`
+                this.send(normCreator, creatorMsg).catch(() => {})
+            }
+        }
+
+        // 4. Send consolidated notification to Kru K3
+        const k3Phones = await getK3PhoneNumbers()
+        if (k3Phones.length > 0) {
+            let k3Msg = `*[K3 INFO] NEW BATCH LOTO REQUEST* 📋 (${items.length} Tiket)\n\n`
+            k3Msg += `Dibuat Oleh: *${creatorName}*\n`
+            k3Msg += `Total Pekerjaan: *${items.length}*\n\n`
+            k3Msg += `*Ringkasan Tiket:*\n`
+            items.slice(0, 10).forEach((it, idx) => {
+                k3Msg += `${idx + 1}. *${it.requestNumber}* [${it.seksi || '-'}] ${it.description ? it.description.substring(0, 40) : '-'}\n`
+            })
+            if (items.length > 10) {
+                k3Msg += `...dan ${items.length - 10} tiket lainnya.\n`
+            }
+            k3Msg += `\nHarap dimonitor dan dikoordinasikan sesuai prosedur K3.`
+
+            for (const k3Phone of k3Phones) {
+                if (!sentNumbers.has(k3Phone)) {
+                    sentNumbers.add(k3Phone)
+                    this.send(k3Phone, k3Msg).catch(() => {})
+                }
+            }
         }
     }
 
@@ -260,22 +306,37 @@ export class WhatsappService {
         creatorPhone?: string | null
     }) {
         const msg = `*LOTO EXECUTION REPORT* ⚡\n\nNo. Request: ${data.requestNumber}\nWork Order: ${data.workOrder}\nStatus: ${data.status}\nType: ${data.type}\nSeksi: ${data.seksi}\nAsset: ${data.equipment} (${data.assetNumber})\nPeralatan: ${data.peralatan}\nPosisi: ${data.eksekusi}\nEksekutor: ${data.eksekutor}\n\nKet: ${data.description}\n`
+        const sentNumbers = new Set<string>()
 
         // 1. Notify Creator
         if (data.creatorPhone) {
-            this.send(data.creatorPhone, msg).catch(() => {})
+            const normCreator = normalizePhoneNumber(data.creatorPhone)
+            sentNumbers.add(normCreator)
+            this.send(normCreator, msg).catch(() => {})
         }
 
         // 2. Notify Eksekutor (Team Leader)
-        const eksekutorPhone = getPhoneNumber(data.eksekutor)
-        if (eksekutorPhone) {
+        const eksekutorPhone = await getPhoneNumberAsync(data.eksekutor)
+        if (eksekutorPhone && !sentNumbers.has(eksekutorPhone)) {
+            sentNumbers.add(eksekutorPhone)
             this.send(eksekutorPhone, msg).catch(() => {})
         }
 
         // 3. Notify Seksi Har
-        const seksiPhone = getPhoneNumber(data.seksi)
-        if (seksiPhone) {
+        const seksiPhone = await getPhoneNumberAsync(data.seksi)
+        if (seksiPhone && !sentNumbers.has(seksiPhone)) {
+            sentNumbers.add(seksiPhone)
             this.send(seksiPhone, msg).catch(() => {})
+        }
+
+        // 4. Notify Kru K3
+        const k3Phones = await getK3PhoneNumbers()
+        const k3Msg = `*[K3 INFO] LOTO TELAH DIEKSEKUSI* ⚡\n\nNo. Request: ${data.requestNumber}\nWork Order: ${data.workOrder}\nAsset: ${data.equipment} (${data.assetNumber})\nPeralatan: ${data.peralatan}\nPosisi Isolasi: ${data.eksekusi}\nEksekutor: ${data.eksekutor}\nSeksi: ${data.seksi}\n\nStatus: *TAGGED & LOCKED*\n`
+        for (const k3Phone of k3Phones) {
+            if (!sentNumbers.has(k3Phone)) {
+                sentNumbers.add(k3Phone)
+                this.send(k3Phone, k3Msg).catch(() => {})
+            }
         }
     }
 
@@ -294,22 +355,37 @@ export class WhatsappService {
         seksiHar: string
     }) {
         const msg = `*LOTO RELEASE REPORT* 🔓\n\nNo. Request: ${data.requestNumber}\nWork Order: ${data.workOrder}\nStatus: ${data.status} (CLOSED)\nAsset: ${data.equipment}\nEksekutor Release: ${data.eksekutorRelease}\nKet. Release: ${data.keteranganRelease}\n\nLOTO telah dicabut dan normalisasi selesai.\n`
+        const sentNumbers = new Set<string>()
 
         // 1. Notify Creator
         if (data.creatorPhone) {
-            this.send(data.creatorPhone, msg).catch(() => {})
+            const normCreator = normalizePhoneNumber(data.creatorPhone)
+            sentNumbers.add(normCreator)
+            this.send(normCreator, msg).catch(() => {})
         }
 
         // 2. Notify Eksekutor Release (Team Leader)
-        const eksekutorPhone = getPhoneNumber(data.eksekutorRelease)
-        if (eksekutorPhone) {
+        const eksekutorPhone = await getPhoneNumberAsync(data.eksekutorRelease)
+        if (eksekutorPhone && !sentNumbers.has(eksekutorPhone)) {
+            sentNumbers.add(eksekutorPhone)
             this.send(eksekutorPhone, msg).catch(() => {})
         }
 
         // 3. Notify Seksi Har
-        const seksiPhone = getPhoneNumber(data.seksiHar)
-        if (seksiPhone) {
+        const seksiPhone = await getPhoneNumberAsync(data.seksiHar)
+        if (seksiPhone && !sentNumbers.has(seksiPhone)) {
+            sentNumbers.add(seksiPhone)
             this.send(seksiPhone, msg).catch(() => {})
+        }
+
+        // 4. Notify Kru K3
+        const k3Phones = await getK3PhoneNumbers()
+        const k3Msg = `*[K3 INFO] LOTO TELAH DI-RELEASE* 🔓\n\nNo. Request: ${data.requestNumber}\nWork Order: ${data.workOrder}\nAsset: ${data.equipment}\nEksekutor: ${data.eksekutorRelease}\n\nLOTO telah resmi dicabut dan sistem dinormalkan kembali.\n`
+        for (const k3Phone of k3Phones) {
+            if (!sentNumbers.has(k3Phone)) {
+                sentNumbers.add(k3Phone)
+                this.send(k3Phone, k3Msg).catch(() => {})
+            }
         }
     }
 }

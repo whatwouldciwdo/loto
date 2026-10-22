@@ -9,6 +9,10 @@ import { API_ROUTES } from '@/lib/constants'
 interface LotoData {
     requestNumber: string
     formData: any
+    asset?: {
+        equipmentName?: string
+        assetNumber?: string
+    } | null
 }
 
 export default function PrintTagPage({ params }: { params: { id: string } }) {
@@ -59,6 +63,14 @@ export default function PrintTagPage({ params }: { params: { id: string } }) {
         loto.formData?.description ||
         '-'
 
+    const equipmentName =
+        loto.asset?.equipmentName ||
+        loto.formData?.operatorForm?.equipmentName ||
+        loto.formData?.equipmentName ||
+        (loto.asset?.assetNumber ? `Asset #${loto.asset.assetNumber}` : null) ||
+        (loto.formData?.assetNumber ? `Asset #${loto.formData.assetNumber}` : null) ||
+        '-'
+
     return (
         <>
             <div className="no-print" style={{
@@ -101,6 +113,7 @@ export default function PrintTagPage({ params }: { params: { id: string } }) {
 
             <PrintTag
                 lotoNumber={loto.requestNumber}
+                equipmentName={equipmentName}
                 workDescription={workDescription}
             />
 
